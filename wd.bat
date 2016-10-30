@@ -1,0 +1,1 @@
+wd.exe /tr=rsi /swap debug\test.exe
