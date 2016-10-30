@@ -1,0 +1,5 @@
+debug/*
+*.obj
+*.map
+*.lnk
+polytun/*
