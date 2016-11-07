@@ -3,21 +3,18 @@
 
 #include "types.h"
 
-namespace video
-{
-	void init();
-	void deinit();
-	void waitForRetrace();
-	void flip(void* src, void* dst, DWORD size);
-	void clear(void *dest, DWORD col, DWORD size);
+#define SCREEN_WIDTH 320
+#define SCREEN_HEIGHT 200
 
-	BYTE* getOffscreenBuffer();
+void video_init();
+void video_deinit();
+void video_waitForRetrace();
+void video_flip(void* src, void* dst, DWORD size);
+void video_clear(void *dest, DWORD col, DWORD size);
 
-	// Set an individual palette entry.
-	void setPal(BYTE col, BYTE r, BYTE g, BYTE b);
+BYTE* video_getOffscreenBuffer();
 
-	// Set an entire palette at once. 'palette' is an array of 256 RGB byte values.
-	void setPal(BYTE* palette);
-}
+// Set an individual palette entry.
+void video_setPal(BYTE col, BYTE r, BYTE g, BYTE b);
 
 #endif

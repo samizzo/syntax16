@@ -3,9 +3,6 @@
 
 #include "effect.h"
 
-namespace polytun
-{
-    Effect::EffectDesc* getEffectDesc();
-}
+EffectDesc* polytun_getEffectDesc();
 
 #endif

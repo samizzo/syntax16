@@ -1,32 +1,16 @@
 #ifndef _array_h
 #define _array_h
 
-template<typename T, int SIZE> class Array
+typedef struct Array_tag
 {
-    public:
-        Array()
-        {
-            m_size = 0;
-        }
+    int size;
+    int elementSize;
+    void* data;
+} Array;
 
-        void push_back(T obj)
-        {
-            m_data[m_size++] = obj;
-        }
-
-        int length()
-        {
-            return m_size;
-        }
-
-        T operator [] (const int index)
-        {
-            return m_data[index];
-        }
-
-    private:
-        int m_size;
-        T m_data[SIZE];
-};
+Array* array_create(int maxSize, int elementSize);
+void array_destroy(Array* array);
+void array_add(Array* array, void* element);
+char* array_get(Array* array, int index);
 
 #endif

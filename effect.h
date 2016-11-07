@@ -1,20 +1,17 @@
 #ifndef _effect_h
 #define _effect_h
 
-namespace Effect
+typedef void (*Effect_InitFunc)();
+typedef void (*Effect_UpdateFunc)();
+typedef void (*Effect_StartFunc)();
+
+typedef struct EffectDesc_tag
 {
-    typedef void (*InitFunc)();
-    typedef void (*UpdateFunc)();
-    typedef void (*StartFunc)();
+    Effect_InitFunc init;
+    Effect_UpdateFunc update;
+    Effect_StartFunc start;
 
-    struct EffectDesc
-    {
-        InitFunc init;
-        UpdateFunc update;
-        StartFunc start;
-
-        bool started;
-    };
-}
+    char started;
+} EffectDesc;
 
 #endif

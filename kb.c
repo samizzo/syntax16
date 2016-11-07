@@ -1,11 +1,8 @@
 #include "kb.h"
 
-namespace kb
+char kb_keyDown(enum Key key)
 {
-
-bool keyDown(Key key)
-{
-    BYTE keyPress;
+    BYTE keyPress = 0;
 
     __asm
     {
@@ -14,6 +11,4 @@ bool keyDown(Key key)
     }
 
     return keyPress == (BYTE)key;
-}
-
 }

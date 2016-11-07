@@ -7,4 +7,9 @@ typedef unsigned long int DWORD;
 
 #define PI 3.14159265358979f
 
+inline float lerpf(float a, float b, float t)
+{
+    return (a * t) + ((1 - t) * b);
+}
+
 #endif

@@ -3,10 +3,7 @@
 
 static BYTE* s_buffer;
 
-namespace video
-{
-
-void init()
+void video_init()
 {
     __asm
     {
@@ -17,7 +14,7 @@ void init()
     s_buffer = (BYTE*)malloc(320*200);
 }
 
-void deinit()
+void video_deinit()
 {
     free(s_buffer);
     s_buffer = 0;
@@ -29,7 +26,7 @@ void deinit()
     }
 }
 
-void waitForRetrace()
+void video_waitForRetrace()
 {
     __asm
     {
@@ -45,7 +42,7 @@ void waitForRetrace()
     }
 }
 
-void flip(void *src, void *dest, DWORD size)
+void video_flip(void *src, void *dest, DWORD size)
 {
     __asm
     {
@@ -56,7 +53,7 @@ void flip(void *src, void *dest, DWORD size)
     }
 }
 
-void clear(void *dest, DWORD col, DWORD size)
+void video_clear(void *dest, DWORD col, DWORD size)
 {
     __asm
     {
@@ -67,12 +64,12 @@ void clear(void *dest, DWORD col, DWORD size)
     }
 }
 
-BYTE* getOffscreenBuffer()
+BYTE* video_getOffscreenBuffer()
 {
     return s_buffer;
 }
 
-void setPal(BYTE col, BYTE r, BYTE g, BYTE b)
+void video_setPal(BYTE col, BYTE r, BYTE g, BYTE b)
 {
     __asm
     {
@@ -88,12 +85,4 @@ void setPal(BYTE col, BYTE r, BYTE g, BYTE b)
         out dx, al
 
     }
-}
-
-void setPal(BYTE* palette)
-{
-    for (int i = 0; i < 256; i++, palette += 3)
-        setPal((BYTE)i, palette[0], palette[1], palette[2]);
-}
-
 }

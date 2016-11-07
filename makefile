@@ -1,4 +1,4 @@
-CPP = wpp386
+CPP = wcc386
 BUILD = debug
 
 LINK_FLAGS_DEBUG = debug all
@@ -11,7 +11,7 @@ CPP_FLAGS = $(CPP_FLAGS_$(BUILD))
 
 OUTPUT_DIR = $(BUILD)
 
-OBJ_FILES = $(OUTPUT_DIR)\main.obj $(OUTPUT_DIR)\video.obj $(OUTPUT_DIR)\kb.obj $(OUTPUT_DIR)\polytun.obj
+OBJ_FILES = $(OUTPUT_DIR)\main.obj $(OUTPUT_DIR)\video.obj $(OUTPUT_DIR)\kb.obj $(OUTPUT_DIR)\log.obj $(OUTPUT_DIR)\image.obj $(OUTPUT_DIR)\array.obj $(OUTPUT_DIR)\polytun.obj $(OUTPUT_DIR)\dots.obj
 EXE_FILE = $(OUTPUT_DIR)\test.exe
 
 default: make_dirs $(EXE_FILE)
@@ -32,4 +32,7 @@ make_dirs: .SYMBOLIC
 	@if not exist $(OUTPUT_DIR) mkdir $(OUTPUT_DIR)
 
 .cpp.obj: .AUTODEPEND
+	$(CPP) $(CPP_FLAGS) $[* -fo=$(OUTPUT_DIR)\$[&
+
+.c.obj: .AUTODEPEND
 	$(CPP) $(CPP_FLAGS) $[* -fo=$(OUTPUT_DIR)\$[&
