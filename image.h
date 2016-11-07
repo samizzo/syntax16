@@ -14,4 +14,7 @@ typedef struct Image_tag
 Image* image_loadFromTGA(const char* path);
 void image_destroy(Image* image);
 
+// Remap the given image's palette so the colours are linear.
+void image_remapPaletteLinear(Image* image);
+
 #endif

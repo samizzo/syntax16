@@ -1,4 +1,5 @@
 #include "image.h"
+#include "vector3.h"
 #include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -99,4 +100,59 @@ void image_destroy(Image* image)
     free(image->pixels);
     free(image->palette);
     free(image);
+}
+
+void image_remapPaletteLinear(Image* image)
+{
+    BYTE indices[256];
+    int i, j;
+
+    for (i = 0; i < 256; i++)
+        indices[i] = i;
+
+    for (j = 0; j < 256 - 1; j++)
+    {
+        int min = j;
+        for (i = j + 1; i < 256; i++)
+        {
+            Vector3 a, b;
+            float alen, blen;
+
+            a.x = image->palette[i*3];
+            a.y = image->palette[(i*3)+1];
+            a.z = image->palette[(i*3)+2];
+            b.x = image->palette[min*3];
+            b.y = image->palette[(min*3)+1];
+            b.z = image->palette[(min*3)+2];
+
+            alen = vec3_len(a);
+            blen = vec3_len(b);
+            if (alen < blen)
+                min = i;
+        }
+
+        if (min != j)
+        {
+            BYTE s;
+            BYTE c[3];
+            memcpy(c, &image->palette[j*3], 3);
+            memcpy(&image->palette[j*3], &image->palette[min*3], 3);
+            memcpy(&image->palette[min*3], c, 3);
+
+            s = indices[j];
+            indices[j] = indices[min];
+            indices[min] = s;
+        }
+    }
+
+    for (i = 0; i < image->width * image->height; i++)
+    {
+        BYTE c = image->pixels[i];
+        for (j = 0; j < 256; j++)
+        {
+            if (indices[j] == c)
+                break;
+        }
+        image->pixels[i] = j;
+    }
 }

@@ -33,10 +33,11 @@ static void init()
         float y = (sin(t * 2.0f * PI) * RADIUS * 0.5f) + (SCREEN_HEIGHT * 0.5f);
         vec3_set(s_dots[i].position, x, y, 0.0f);
         vec3_set(s_dots[i].velocity, 0.0f, 0.0f, 0.0f);
-        s_dots[i].life = 10.0f;
+        s_dots[i].life = 1.0f;
     }
 
     image = image_loadFromTGA("data/dot.tga");
+    image_remapPaletteLinear(image);
 }
 
 static void start()
@@ -63,19 +64,23 @@ static void update()
     int i, x, y;
     BYTE* buffer = video_getOffscreenBuffer();
 
-    for (x = 0; x < 256; x++)
-    {
-        for (y = 0; y < 200; y++)
-        {
-            buffer[x + (y * 320)] = (BYTE)x;
-        }
-    }
+    // for (x = 0; x < 256; x++)
+    // {
+    //     for (y = 0; y < 200; y++)
+    //     {
+    //         buffer[x + (y * 320)] = (BYTE)x;
+    //     }
+    // }
 
     for (i = 0; i < MAX_DOTS; i++)
     {
         x = (int)(s_dots[i].position.x);
         y = (int)(s_dots[i].position.y);
-        buffer[x + (y * 320)] = 255;
+        if (s_dots[i].life > 0.0f)
+        {
+            buffer[x + (y * 320)] = (BYTE)(255 * s_dots[i].life);
+            s_dots[i].life -= 0.001f;
+        }
     }
 
     // {
