@@ -2,6 +2,7 @@
 #include "video.h"
 #include "vector3.h"
 #include "kb.h"
+#include "image.h"
 #include <math.h>
 
 typedef struct Dot_tag
@@ -13,6 +14,8 @@ typedef struct Dot_tag
 
 #define MAX_DOTS 1024
 static Dot s_dots[MAX_DOTS];
+
+Image* image = 0;
 
 // static void drawDot(int x, int y)
 // {
@@ -32,6 +35,8 @@ static void init()
         vec3_set(s_dots[i].velocity, 0.0f, 0.0f, 0.0f);
         s_dots[i].life = 10.0f;
     }
+
+    image = image_loadFromTGA("data/dot.tga");
 }
 
 static void start()
@@ -49,26 +54,42 @@ static void start()
         vec3_lerp(col, startCol, endCol, i / (float)256);
         video_setPal((BYTE)i, (BYTE)col.x, (BYTE)col.y, (BYTE)col.z);
     }
+
+    video_setPalette(image->palette);
 }
 
 static void update()
 {
-    int i;
+    int i, x, y;
     BYTE* buffer = video_getOffscreenBuffer();
-    // for (int x = 0; x < 256; x++)
-    // {
-    //     for (int y = 0; y < 200; y++)
-    //     {
-    //         buffer[x + (y * 320)] = (BYTE)x;
-    //     }
-    // }
+
+    for (x = 0; x < 256; x++)
+    {
+        for (y = 0; y < 200; y++)
+        {
+            buffer[x + (y * 320)] = (BYTE)x;
+        }
+    }
 
     for (i = 0; i < MAX_DOTS; i++)
     {
-        int x = (int)(s_dots[i].position.x);
-        int y = (int)(s_dots[i].position.y);
+        x = (int)(s_dots[i].position.x);
+        y = (int)(s_dots[i].position.y);
         buffer[x + (y * 320)] = 255;
     }
+
+    // {
+    //     BYTE* buf = image->pixels;
+    //     for (y = 0; y < image->height; y++)
+    //     {
+    //         for (x = 0; x < image->width; x++)
+    //         {
+    //             BYTE c = *buf;
+    //             buffer[x + (y * 320)] = c;
+    //             buf++;
+    //         }
+    //     }
+    // }
 }
 
 static EffectDesc s_desc = { init, update, start };

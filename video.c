@@ -86,3 +86,24 @@ void video_setPal(BYTE col, BYTE r, BYTE g, BYTE b)
 
     }
 }
+
+void video_setPalette(BYTE* palette)
+{
+    __asm
+    {
+        mov dx, 0x3c8
+        mov al, 0
+        out dx, al
+        inc dx
+
+        mov cx, 256*3
+        mov esi, palette
+
+    looper:
+        mov al, byte ptr [esi]
+        out dx, al
+        inc esi
+        dec cx
+        jnz looper
+    }
+}

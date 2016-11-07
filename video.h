@@ -14,7 +14,7 @@ void video_clear(void *dest, DWORD col, DWORD size);
 
 BYTE* video_getOffscreenBuffer();
 
-// Set an individual palette entry.
 void video_setPal(BYTE col, BYTE r, BYTE g, BYTE b);
+void video_setPalette(BYTE* palette);
 
 #endif

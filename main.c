@@ -28,45 +28,43 @@ void initEffects()
 static void init()
 {
     g_effects = array_create(32, sizeof(EffectDesc));
+    registerEffects();
+    video_init();
+    initEffects();
 }
 
 static void cleanup()
 {
     array_destroy(g_effects);
+    video_deinit();
 }
 
 int main()
 {
-    Image* image;
+    BYTE* buffer;
+    DWORD bufferSize = (320 * 200) >> 2;
+    EffectDesc* currentEffect;
 
     init();
-    image = image_loadFromTGA("data/dot.tga");
 
-    // registerEffects();
-    // video::init();
-    // initEffects();
+    currentEffect = (EffectDesc*)array_get(g_effects, 0);
 
-    // Effect::EffectDesc* currentEffect = g_effects[0];
+    buffer = video_getOffscreenBuffer();
 
-    // BYTE* buffer = video::getOffscreenBuffer();
-    // DWORD bufferSize = (320 * 200) >> 2;
+    while (!kb_keyDown(Key_Escape))
+    {
+        if (!currentEffect->started)
+        {
+            currentEffect->started = 1;
+            currentEffect->start();
+        }
 
-    // while (!kb::keyDown(kb::Escape))
-    // {
-    //     if (!currentEffect->started)
-    //     {
-    //         currentEffect->started = true;
-    //         currentEffect->start();
-    //     }
+        currentEffect->update();
 
-    //     currentEffect->update();
-
-    //     video::waitForRetrace();
-    //     video::flip(buffer, (void*)0xa0000, bufferSize);
-    //     video::clear(buffer, 0, bufferSize);
-    // }
-
-    // video::deinit();
+        video_waitForRetrace();
+        video_flip(buffer, (void*)0xa0000, bufferSize);
+        video_clear(buffer, 0, bufferSize);
+    }
 
     cleanup();
     return 0;
