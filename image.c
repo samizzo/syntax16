@@ -59,8 +59,8 @@ Image* image_loadFromTGA(const char* path)
     if (header.colourMapBitsPerPixel != 24)
         return 0;
 
-    // Colour map must always be 256 entries in size.
-    if (header.colourMapLength != 256)
+    // Colour map must be max 256 entries in size.
+    if (header.colourMapLength > 256)
         return 0;
 
     log_debug("Image is %ix%i\n", header.width, header.height);
@@ -75,6 +75,7 @@ Image* image_loadFromTGA(const char* path)
 
     // Read the palette
     image->palette = (BYTE*)malloc(256 * 3);
+    memset(image->palette, 0, 256 * 3);
 
     {
         BYTE* pal = image->palette;

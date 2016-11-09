@@ -3,6 +3,7 @@
 #include "vector3.h"
 #include "kb.h"
 #include "image.h"
+#include "log.h"
 #include <math.h>
 
 typedef struct Dot_tag
@@ -17,11 +18,7 @@ static Dot s_dots[MAX_DOTS];
 
 Image* image = 0;
 
-// static void drawDot(int x, int y)
-// {
-// }
-
-static void init()
+static int init()
 {
     #define RADIUS 150.0f
     int i;
@@ -37,7 +34,14 @@ static void init()
     }
 
     image = image_loadFromTGA("data/dot.tga");
+    if (!image)
+    {
+        log_debug("Failed to load dot.tga");
+        return 0;
+    }
+
     image_remapPaletteLinear(image);
+    return 1;
 }
 
 static void start()
@@ -56,7 +60,31 @@ static void start()
         video_setPal((BYTE)i, (BYTE)col.x, (BYTE)col.y, (BYTE)col.z);
     }
 
-    video_setPalette(image->palette);
+    //video_setPalette(image->palette);
+}
+
+static void drawDot(int x, int y)
+{
+    int xx, yy;
+    BYTE* buffer = video_getOffscreenBuffer();
+    BYTE* imageBuf = (BYTE*)image->pixels;
+
+    x -= image->width >> 1;
+    y -= image->height >> 1;
+
+    buffer += x + (y * SCREEN_WIDTH);
+
+    for (yy = 0; yy < image->height; yy++)
+    {
+        for (xx = 0; xx < image->width; xx++)
+        {
+            *buffer = *imageBuf;
+            buffer++;
+            imageBuf++;
+        }
+
+        buffer += SCREEN_WIDTH - image->width;
+    }
 }
 
 static void update()
@@ -78,8 +106,9 @@ static void update()
         y = (int)(s_dots[i].position.y);
         if (s_dots[i].life > 0.0f)
         {
-            buffer[x + (y * 320)] = (BYTE)(255 * s_dots[i].life);
-            s_dots[i].life -= 0.001f;
+            //buffer[x + (y * 320)] = (BYTE)(255 * s_dots[i].life);
+            //s_dots[i].life -= 0.001f;
+            // drawDot(x, y);
         }
     }
 

@@ -3,8 +3,10 @@
 #include "polytun.h"
 #include "dots.h"
 #include "array.h"
-#include <stdio.h>
 #include "image.h"
+#include "log.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 Array* g_effects;
 
@@ -14,23 +16,30 @@ void registerEffects()
     array_add(g_effects, polytun_getEffectDesc());
 }
 
-void initEffects()
+int initEffects()
 {
+    int success = 1;
     int i = 0;
     for (i = 0; i < g_effects->size; i++)
     {
         EffectDesc* e = (EffectDesc*)array_get(g_effects, i);
-        e->init();
+        success &= e->init();
         e->started = 0;
     }
+    return success;
 }
 
 static void init()
 {
     g_effects = array_create(32, sizeof(EffectDesc));
     registerEffects();
+    if (!initEffects())
+    {
+        log_debug("Failed to init effects");
+        exit(0);
+    }
+
     video_init();
-    initEffects();
 }
 
 static void cleanup()

@@ -77,7 +77,7 @@ static void renderTunnel()
     }
 }
 
-static void init()
+static int init()
 {
     float z = 1.0f;
     int i;
@@ -86,6 +86,8 @@ static void init()
         addSegment(z);
         z += 1.0f;
     }
+
+    return 1;
 }
 
 static void start()

@@ -1,7 +1,7 @@
 #ifndef _effect_h
 #define _effect_h
 
-typedef void (*Effect_InitFunc)();
+typedef int (*Effect_InitFunc)();
 typedef void (*Effect_UpdateFunc)();
 typedef void (*Effect_StartFunc)();
 
