@@ -17,6 +17,7 @@ static Vector3 m_screen[MAX_SEGMENTS * 4];
 static int s_numSegments = 0;
 static float s_projXscale;
 static float s_projYscale;
+static Vector3 s_camera;
 
 // Adds a segment to the end of the list with the specified z position.
 static void addSegment(float z)
@@ -44,6 +45,7 @@ void projectTunnel()
     {
         float z;
         vec3_copy(&w, &m_world[i]);
+        vec3_sub(&w, &w, &s_camera);
 
         z = 1.0f / w.z;
         s.x = X_CENTRE + (w.x * s_projXscale * z);
@@ -64,20 +66,22 @@ static void renderTunnel()
         int j;
         int prevSegment = (i - 1) * 4;
         int currSegment = i * 4;
-        BYTE prevColour = (BYTE)((m_screen[prevSegment].z * 127.0f) + (((i >> 2) & 1) << 7));
-        BYTE currColour = (BYTE)((m_screen[currSegment].z * 127.0f) + (((i >> 2) & 1) << 7));
+        BYTE prevColour = (BYTE)i; //(BYTE)((m_screen[prevSegment].z * 127.0f) + (((i >> 2) & 1) << 7));
+        BYTE currColour = prevColour; //(BYTE)((m_screen[currSegment].z * 127.0f) + (((i >> 2) & 1) << 7));
 
         for (j = 0; j < 4; j++)
         {
+            int ofs = (3 + j) & 3;
             Vector3 a, b, c;
+
             vec3_copy(&a, &m_screen[prevSegment + j]);
-            vec3_copy(&b, &m_screen[(prevSegment + 3 + j) & 3]);
+            vec3_copy(&b, &m_screen[prevSegment + ofs]);
             vec3_copy(&c, &m_screen[currSegment + j]);
             poly_draw(&a, prevColour, &b, prevColour, &c, currColour, buffer);
 
             vec3_copy(&a, &m_screen[currSegment + j]);
-            vec3_copy(&b, &m_screen[(prevSegment + 3 + j) & 3]);
-            vec3_copy(&c, &m_screen[(currSegment + 3 + j) & 3]);
+            vec3_copy(&b, &m_screen[prevSegment + ofs]);
+            vec3_copy(&c, &m_screen[currSegment + ofs]);
             poly_draw(&a, currColour, &b, prevColour, &c, currColour, buffer);
         }
     }
@@ -85,13 +89,15 @@ static void renderTunnel()
 
 static int init()
 {
-    float z = 1.0f;
+    float z = 1.5f;
     int i;
     for (i = 0; i < MAX_SEGMENTS; i++)
     {
         addSegment(z);
-        z += 1.0f;
+        z += 0.1f;
     }
+
+    vec3_set(&s_camera, 0, 0, 0);
 
     return 1;
 }
@@ -99,10 +105,18 @@ static int init()
 static void start()
 {
     int i;
-    for (i = 0; i < 128; i++)
+    for (i = 1; i <= 128; i++)
     {
-        video_setPal((BYTE)i, (BYTE)(i >> 2), (BYTE)(i >> 2), (BYTE)(i >> 1));
-        video_setPal((BYTE)(i + 128), (BYTE)(i >> 1), (BYTE)(i >> 2), (BYTE)(i >> 8));
+        if ((i & 1) == 1)
+        {
+            video_setPal((BYTE)i, 63, 0, 0);
+        }
+        else
+        {
+            video_setPal((BYTE)i, 0, 32, 0);
+        }
+        // video_setPal((BYTE)i, (BYTE)(i >> 2), (BYTE)(i >> 2), (BYTE)(i >> 1));
+        // video_setPal((BYTE)(i + 128), (BYTE)(i >> 1), (BYTE)(i >> 2), (BYTE)(i >> 8));
     }
 }
 
@@ -114,20 +128,13 @@ static void update(float dt)
     projectTunnel();
     renderTunnel();
 
-    // BYTE* buffer = video_getOffscreenBuffer();
-    // for (int x = 0; x < 256; x++)
-    // {
-    //     for (int y = 0; y < 200; y++)
-    //     {
-    //         buffer[x + (y * 320)] = (BYTE)x;
-    //     }
-    // }
-
     if (kb_keyDown(Key_Up))
     {
+        s_camera.z += dt;
     }
     else if (kb_keyDown(Key_Down))
     {
+        s_camera.z -= dt;
     }
 }
 

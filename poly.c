@@ -5,7 +5,7 @@
 
 void hline(int x1, int col1, int x2, int col2, int y, BYTE* buffer)
 {
-    int d, i;
+    int i;
     float cgrad, cer;
 
     if (x2 < x1)
@@ -20,13 +20,13 @@ void hline(int x1, int col1, int x2, int col2, int y, BYTE* buffer)
     if (x1 >= SCREEN_WIDTH)
         return;
 
-    if (x2 - x1 == 0)
+    if ((x2 - x1) == 0)
     {
         buffer[x1 + (y*SCREEN_WIDTH)] = col1;
         return;
     }
 
-    cgrad = (col2 -col1) / (x2 - x1);
+    cgrad = (col2 -col1) / (float)(x2 - x1);
     cer = col1;
     if (x1 < 0)
     {
@@ -34,7 +34,7 @@ void hline(int x1, int col1, int x2, int col2, int y, BYTE* buffer)
         x1 = 0;
     }
 
-    d = x1 + (y * SCREEN_WIDTH);
+    buffer += x1 + (y * SCREEN_WIDTH);
     if (x2 >= SCREEN_WIDTH)
         x2 = SCREEN_WIDTH - 1;;
 
@@ -86,6 +86,10 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
     x3 = (int)p3->x;
     y3 = (int)p3->y;
 
+    // buffer[x1 + (y1*320)] = c1;
+    // buffer[x2 + (y2*320)] = c2;
+    // buffer[x3 + (y3*320)] = c3;
+
     if (y2 > y3)
     {
         swap(y2, y3);
@@ -107,11 +111,20 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
         swap(c2, c3);
     }
 
-    if (y3 < 0) return; // whole polygon is out of screen
-    if (y1 >= SCREEN_HEIGHT) return; // whole polygon is out of screen
+    // is entire polygon out of screen?
+    if (y3 < 0)
+        return;
+
+    // is entire polygon out of screen?
+    if (y1 >= SCREEN_HEIGHT)
+        return;
 
     temp2 = y3 - y1;
-    if (temp2 == 0) return; // empty area polygon
+
+    // is polygon empty area?
+    if (temp2 == 0)
+        return;
+
     temp1 = y2 - y1;
     temp3 = y3 - y2;
 
@@ -134,7 +147,7 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
     else
     {
         // if top isn't horizontal
-        adder = 1;
+        adder = 0; // 1?
         xgrad1 = (x2 - x1) / (float)temp1;
         cgrad1 = (c2 - c1) / (float)temp1;
 
@@ -203,8 +216,8 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
 
             xgrad1 = xgrad3;
             cgrad1 = cgrad3;
-            xer1 = x2 + xgrad1; // to eliminate fractional errors
-            cer1 = c2 + cgrad1;
+            //xer1 = x2 + xgrad1; // to eliminate fractional errors
+            //cer1 = c2 + cgrad1;
         }
     }
 
