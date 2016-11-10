@@ -1,14 +1,14 @@
 #ifndef _particle_h
 #define _particle_h
 
-#include "Vector3.h"
+#include "Vector2.h"
 #include "Image.h"
 
 typedef struct Particle_tag
 {
-    Vector3 position;
-    Vector3 velocity;
-    Vector3 acceleration;
+    Vector2 position;
+    Vector2 velocity;
+    Vector2 acceleration;
     float life;
     Image* image;
 } Particle;

@@ -33,8 +33,8 @@ void ps_updateAndDraw(ParticleSystem* ps, BYTE* buffer, float dt)
 
     for (i = 0; i < maxParticles; i++)
     {
-        Vector3* p, *v, *a;
-        Vector3 tmp;
+        Vector2* p, *v, *a;
+        Vector2 tmp;
         Particle* d = &particles[i];
 
         if (d->life <= 0.0f)
@@ -45,14 +45,14 @@ void ps_updateAndDraw(ParticleSystem* ps, BYTE* buffer, float dt)
         a = &d->acceleration;
 
         // Apply acceleration to velocity.
-        vec3_copy(&tmp, a);
-        vec3_mul(&tmp, dt);
-        vec3_add(v, v, &tmp);
+        vec2_copy(&tmp, a);
+        vec2_mul(&tmp, dt);
+        vec2_add(v, v, &tmp);
 
         // Apply velocity to position.
-        vec3_copy(&tmp, v);
-        vec3_mul(&tmp, dt);
-        vec3_add(p, p, &tmp);
+        vec2_copy(&tmp, v);
+        vec2_mul(&tmp, dt);
+        vec2_add(p, p, &tmp);
 
         life = d->life;
 
@@ -78,7 +78,7 @@ void ps_updateAndDraw(ParticleSystem* ps, BYTE* buffer, float dt)
             {
                 BYTE col = *pixels;
                 BYTE c = *b;
-                *b = (BYTE)clamp((col * life) + c, 0, 255);
+                *b = (BYTE)clampf((col * life) + c, 0, 255);
                 b++;
                 pixels++;
             }
