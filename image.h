@@ -12,6 +12,7 @@ typedef struct Image_tag
 } Image;
 
 Image* image_loadFromTGA(const char* path);
+Image* image_create(int width, int height);
 void image_destroy(Image* image);
 
 // Remap the given image's palette so the colours are linear.

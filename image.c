@@ -29,6 +29,16 @@ typedef struct Header_tag
 
 static Header header;
 
+Image* image_create(int width, int height)
+{
+    Image* image = (Image*)malloc(sizeof(Image));
+    image->pixels = (BYTE*)malloc(width * height);
+    image->width = width;
+    image->height = height;
+    image->palette = (BYTE*)malloc(256 * 3);
+    return image;
+}
+
 Image* image_loadFromTGA(const char* path)
 {
     Image* image = 0;
@@ -126,8 +136,8 @@ void image_remapPaletteLinear(Image* image)
             b.y = image->palette[(min*3)+1];
             b.z = image->palette[(min*3)+2];
 
-            alen = vec3_len(a);
-            blen = vec3_len(b);
+            alen = vec3_length(&a);
+            blen = vec3_length(&b);
             if (alen < blen)
                 min = i;
         }
