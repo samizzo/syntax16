@@ -1,3 +1,3 @@
 #include "util.h"
 
-DWORD rand_seed;
+DWORD g_seed;
