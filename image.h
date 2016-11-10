@@ -1,7 +1,7 @@
 #ifndef _image_h
 #define _image_h
 
-#include "types.h"
+#include "util.h"
 
 typedef struct Image_tag
 {

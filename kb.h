@@ -1,7 +1,7 @@
 #ifndef _kb_h
 #define _kb_h
 
-#include "types.h"
+#include "util.h"
 
 enum Key
 {

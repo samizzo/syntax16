@@ -1,7 +1,7 @@
 #ifndef _video_h
 #define _video_h
 
-#include "types.h"
+#include "util.h"
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200

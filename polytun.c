@@ -25,10 +25,10 @@ static void addSegment(float z)
     if (s_numSegments == MAX_SEGMENTS)
         return;
 
-    vec3_set(m_world[ofs+0], -0.5f, -0.5f, z); // top left
-    vec3_set(m_world[ofs+1], 0.5f, -0.5f, z); // top right
-    vec3_set(m_world[ofs+2], 0.5f, 0.5f, z); // bottom right
-    vec3_set(m_world[ofs+3], -0.5f, 0.5f, z); // bottom left
+    vec3_set(&m_world[ofs+0], -0.5f, -0.5f, z); // top left
+    vec3_set(&m_world[ofs+1], 0.5f, -0.5f, z); // top right
+    vec3_set(&m_world[ofs+2], 0.5f, 0.5f, z); // bottom right
+    vec3_set(&m_world[ofs+3], -0.5f, 0.5f, z); // bottom left
 
     s_numSegments++;
 }
