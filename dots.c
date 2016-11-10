@@ -17,7 +17,7 @@ typedef struct Particle_tag
     Image* image;
 } Particle;
 
-#define MAX_PARTICLES 1024
+#define MAX_PARTICLES 2048
 static Particle s_particles[MAX_PARTICLES];
 static const float RADIUS = 150.0f;
 static Vector3 s_centre = { SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f };
@@ -48,33 +48,17 @@ static BYTE s_dot3[3*3] =
 
 static void addParticles(int num)
 {
-    int i, j;
+    int j;
 
-    // FIXME: Go through all particles once, rather than num times!
-
-    for (i = 0; i < num; i++)
+    // Find a free particle slot.
+    for (j = 0; j < MAX_PARTICLES; j++)
     {
-        Particle* particle = 0;
-
-        // Find a free particle slot.
-        for (j = 0; j < MAX_PARTICLES; j++)
+        Particle* d = &s_particles[j];
+        if (d->life <= 0.0f)
         {
-            Particle* d = &s_particles[j];
-            if (d->life <= 0.0f)
-            {
-                particle = d;
-                break;
-            }
-        }
-
-        // If we can't find any more free slots, just abort.
-        if (!particle)
-            break;
-
-        {
-            Vector3* p = &particle->position;
-            Vector3* v = &particle->velocity;
-            Vector3* a = &particle->acceleration;
+            Vector3* p = &d->position;
+            Vector3* v = &d->velocity;
+            Vector3* a = &d->acceleration;
             float t;
 
             vec3_set(v, 0, 0, 0);
@@ -91,8 +75,12 @@ static void addParticles(int num)
             vec3_normalise(a);
             vec3_mul(a, randomf() * s_maxAcceleration);
 
-            particle->life = 1.5f;
-            particle->image = images[random() & 2];
+            d->life = 1.5f;
+            d->image = images[random() & 2];
+
+            num--;
+            if (num == 0)
+                break;
         }
     }
 }
@@ -113,7 +101,7 @@ static int init()
         d->life = 0.0f;
     }
 
-    addParticles(50);
+    addParticles(100);
 
     // image = image_loadFromTGA("data/dot.tga");
     // if (!image)
@@ -192,7 +180,7 @@ static void update(float dt)
     if (s_timer > 0.2f)
     {
         s_timer = 0.0f;
-        addParticles(100);
+        addParticles(200);
     }
 
     for (i = 0; i < MAX_PARTICLES; i++)
