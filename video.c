@@ -11,7 +11,7 @@ void video_init()
         int 10h
     }
 
-    s_buffer = (BYTE*)malloc(320*200);
+    s_buffer = (BYTE*)malloc(SCREEN_WIDTH*SCREEN_HEIGHT);
 }
 
 void video_deinit()
