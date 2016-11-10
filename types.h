@@ -9,7 +9,12 @@ typedef unsigned long int DWORD;
 
 inline float lerpf(float a, float b, float t)
 {
-    return (a * t) + ((1 - t) * b);
+    return (b * t) + ((1 - t) * a);
+}
+
+inline float clamp(float value, float min, float max)
+{
+    return value > max ? max : value < min ? min : value;
 }
 
 #endif
