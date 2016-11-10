@@ -103,6 +103,8 @@ Image* image_loadFromTGA(const char* path)
     // Read the image data
     fread(image->pixels, image->width * image->height, 1, fp);
 
+    fclose(fp);
+
     return image;
 }
 
@@ -167,3 +169,25 @@ void image_remapPaletteLinear(Image* image)
         image->pixels[i] = j;
     }
 }
+
+BYTE* image_loadPalette(const char* path)
+{
+    BYTE* palette = 0;
+    FILE* fp = fopen(path, "rb");
+    if (fp == 0)
+    {
+        log_debug("Couldn't load file %s\n", path);
+        return 0;
+    }
+
+    palette = (BYTE*)malloc(256*3);
+    fread(palette, 256*3, 1, fp);
+    fclose(fp);
+    return palette;
+}
+
+void image_destroyPalette(BYTE* palette)
+{
+    free(palette);
+}
+
