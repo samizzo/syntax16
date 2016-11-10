@@ -11,7 +11,16 @@ CPP_FLAGS = $(CPP_FLAGS_$(BUILD))
 
 OUTPUT_DIR = $(BUILD)
 
-OBJ_FILES = $(OUTPUT_DIR)\main.obj $(OUTPUT_DIR)\video.obj $(OUTPUT_DIR)\kb.obj $(OUTPUT_DIR)\log.obj $(OUTPUT_DIR)\image.obj $(OUTPUT_DIR)\array.obj $(OUTPUT_DIR)\polytun.obj $(OUTPUT_DIR)\dots.obj $(OUTPUT_DIR)\util.obj
+OBJ_FILES = $(OUTPUT_DIR)\main.obj &
+	$(OUTPUT_DIR)\video.obj &
+	$(OUTPUT_DIR)\kb.obj &
+	$(OUTPUT_DIR)\log.obj &
+	$(OUTPUT_DIR)\image.obj &
+	$(OUTPUT_DIR)\array.obj &
+	$(OUTPUT_DIR)\polytun.obj &
+	$(OUTPUT_DIR)\dots.obj &
+	$(OUTPUT_DIR)\util.obj &
+	$(OUTPUT_DIR)\particle.obj
 EXE_FILE = $(OUTPUT_DIR)\test.exe
 
 default: make_dirs $(EXE_FILE)

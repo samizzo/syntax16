@@ -8,18 +8,10 @@
 #include "image.h"
 #include "log.h"
 #include "util.h"
+#include "particle.h"
 
-typedef struct Particle_tag
-{
-    Vector3 position;
-    Vector3 velocity;
-    Vector3 acceleration;
-    float life;
-    Image* image;
-} Particle;
-
-#define MAX_PARTICLES 4096
-static Particle s_particles[MAX_PARTICLES];
+static const int MAX_PARTICLES = 4096;
+static ParticleSystem* s_system;
 static const float RADIUS = 150.0f;
 static Vector3 s_centre = { SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f };
 static float s_maxAcceleration = 40.0f;
@@ -56,11 +48,12 @@ static BYTE s_dot3[3*3] =
 static void addParticles(int num)
 {
     int j;
+    int maxParticles = s_system->maxParticles;
+    Particle* particles = s_system->particles;
 
-    // Find a free particle slot.
-    for (j = 0; j < MAX_PARTICLES; j++)
+    for (j = 0; j < maxParticles; j++)
     {
-        Particle* d = &s_particles[j];
+        Particle* d = particles + j;
         if (d->life <= 0.0f)
         {
             Vector3* p = &d->position;
@@ -107,12 +100,7 @@ static int init()
     video_clear(s_blurBuffer, 0, (SCREEN_WIDTH*SCREEN_HEIGHT)>>2);
 #endif
 
-    for (i = 0; i < MAX_PARTICLES; i++)
-    {
-        Particle* d = &s_particles[i];
-        d->life = 0.0f;
-    }
-
+    s_system = ps_create(MAX_PARTICLES);
     addParticles(100);
 
     // image = image_loadFromTGA("data/dot.tga");
@@ -144,42 +132,6 @@ static void start()
     }
 
     //video_setPalette(image->palette);
-}
-
-static void drawParticle(Particle* p)
-{
-    int x, y, xx, yy;
-    BYTE* buffer;
-    Image* image;
-    BYTE* imageBuf;
-    float life;
-
-    x = (int)(p->position.x);
-    y = (int)(p->position.y);
-
-    if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT)
-        return;
-
-    buffer = video_getOffscreenBuffer();
-    image = p->image;
-    imageBuf = image->pixels;
-    life = p->life;
-
-    buffer += x + (y * SCREEN_WIDTH);
-
-    for (yy = 0; yy < image->height; yy++)
-    {
-        for (xx = 0; xx < image->width; xx++)
-        {
-            BYTE col = *imageBuf;
-            BYTE c = *buffer;
-            *buffer = (BYTE)clamp((col * life) + c, 0, 255);
-            buffer++;
-            imageBuf++;
-        }
-
-        buffer += SCREEN_WIDTH - image->width;
-    }
 }
 
 static float s_timer;
@@ -226,8 +178,6 @@ static void blur()
 
 static void update(float dt)
 {
-    int i;
-
     s_timer += dt;
     if (s_timer > 0.1f)
     {
@@ -247,32 +197,7 @@ static void update(float dt)
     }
 #endif
 
-    for (i = 0; i < MAX_PARTICLES; i++)
-    {
-        Particle* d = &s_particles[i];
-        Vector3* p, *v, *a;
-        Vector3 tmp;
-
-        if (d->life <= 0.0f)
-            continue;
-
-        p = &d->position;
-        v = &d->velocity;
-        a = &d->acceleration;
-
-        // Apply acceleration to velocity
-        vec3_copy(&tmp, a);
-        vec3_mul(&tmp, dt);
-        vec3_add(v, v, &tmp);
-
-        // Apply velocity to position
-        vec3_copy(&tmp, v);
-        vec3_mul(&tmp, dt);
-        vec3_add(p, p, &tmp);
-
-        drawParticle(d);
-        d->life -= dt;
-    }
+    ps_updateAndDraw(s_system, video_getOffscreenBuffer(), dt);
 
 #if DO_BLUR
     blur();
