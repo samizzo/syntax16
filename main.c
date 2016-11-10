@@ -31,6 +31,8 @@ int initEffects()
 
 static void init()
 {
+    log_init("debug.txt");
+    log_debug("log file opened\n");
     g_effects = array_create(32, sizeof(EffectDesc));
     registerEffects();
     if (!initEffects())
@@ -44,6 +46,7 @@ static void init()
 
 static void cleanup()
 {
+    log_shutdown();
     array_destroy(g_effects);
     video_deinit();
 }
