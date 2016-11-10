@@ -11,7 +11,7 @@
 #include "util.h"
 #include "particle.h"
 
-static const int MAX_PARTICLES = 4096;
+static const int MAX_PARTICLES = 8192;
 static ParticleSystem* s_system;
 static const float RADIUS = 150.0f;
 static Vector2 s_centre = { SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f };
@@ -26,25 +26,22 @@ static BYTE* s_blurBuffer;
 Image* images[3];
 BYTE* palette;
 
-static BYTE s_dot[3*3] =
+static BYTE s_dot[2*2] =
 {
-    0,   80, 0,
-    70, 255, 100,
-    0,   50, 0,
+    0,   80,
+    70, 255,
 };
 
-static BYTE s_dot2[3*3] =
+static BYTE s_dot2[2*2] =
 {
-    0,   70, 0,
-    70, 120, 40,
-    0,   20, 0,
+    0,   70,
+    70, 120,
 };
 
-static BYTE s_dot3[3*3] =
+static BYTE s_dot3[2*2] =
 {
-    0,   70, 0,
-    70, 180, 40,
-    0,   20, 0,
+    0,   70,
+    180, 0,
 };
 
 static void addParticles(int num)
@@ -77,7 +74,7 @@ static void addParticles(int num)
             vec2_mul(a, randomf() * s_maxAcceleration);
 
             d->life = 1.5f;
-            d->image = images[2]; //images[random() & 2];
+            d->image = images[random() & 2];
 
             num--;
             if (num == 0)
@@ -93,10 +90,10 @@ static int init()
     palette = image_loadPalette("data/pal1.pal");
 
     for (i = 0; i < 3; i++)
-        images[i] = image_create(3, 3);
-    memcpy(images[0]->pixels, s_dot, 3*3);
-    memcpy(images[1]->pixels, s_dot2, 3*3);
-    memcpy(images[2]->pixels, s_dot3, 3*3);
+        images[i] = image_create(2, 2);
+    memcpy(images[0]->pixels, s_dot, 2*2);
+    memcpy(images[1]->pixels, s_dot2, 2*2);
+    memcpy(images[2]->pixels, s_dot3, 2*2);
 
 #if DO_BLUR
     s_blurBuffer = (BYTE*)malloc(SCREEN_WIDTH*SCREEN_HEIGHT);
@@ -204,17 +201,17 @@ static void update(float dt)
 
     ps_updateAndDraw(s_system, video_getOffscreenBuffer(), dt);
 
-    {
-        int x;
-        BYTE* b = video_getOffscreenBuffer();
-        for (x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++)
-        {
-            int c = *b;
-            c = max(0, c - 30);
-            *b = c;
-            b++;
-        }
-    }
+    // {
+    //     int x;
+    //     BYTE* b = video_getOffscreenBuffer();
+    //     for (x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++)
+    //     {
+    //         int c = *b;
+    //         c = max(0, c - 30);
+    //         *b = c;
+    //         b++;
+    //     }
+    // }
 
 #if DO_BLUR
     blur();
@@ -233,7 +230,7 @@ static void update(float dt)
 #endif
 }
 
-static EffectDesc s_desc = { init, update, start, 0, 0 };
+static EffectDesc s_desc = { init, update, start, 0, 1 };
 
 EffectDesc* dots_getEffectDesc()
 {
