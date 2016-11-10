@@ -107,3 +107,16 @@ void video_setPalette(BYTE* palette)
         jnz looper
     }
 }
+
+void video_drawPalette()
+{
+    int x, y;
+    BYTE* buffer = video_getOffscreenBuffer();
+    for (x = 0; x < 256; x++)
+    {
+        for (y = 0; y < SCREEN_HEIGHT; y++)
+        {
+            buffer[x + (y * SCREEN_WIDTH)] = (BYTE)x;
+        }
+    }
+}
