@@ -17,4 +17,13 @@ inline float clamp(float value, float min, float max)
     return value > max ? max : value < min ? min : value;
 }
 
+extern DWORD rand_seed;
+
+// Returns a random value between 0 and 1.
+inline float random()
+{
+    rand_seed = ((rand_seed*0x12345678 + 0x9ABCDEF) >> 9);
+    return (rand_seed / (float)0xffffffff);
+}
+
 #endif

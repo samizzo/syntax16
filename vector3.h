@@ -10,10 +10,16 @@ typedef struct Vector3_tag
 } Vector3;
 
 
-#define vec3_copy(dest, src) (dest).x = (src).x; (dest).y = (src).y; (dest).z = (src).z
 #define vec3_lerp(dest, a, b, t) dest.x = lerpf(a.x, b.x, t); dest.y = lerpf(a.y, b.y, t); dest.z = lerpf(a.z, b.z, t)
 #define vec3_dist(a, b) sqrt((b.x - a.x)*(b.x - a.x) + (b.y - a.y)*(b.y - a.y) + (b.z - a.z)*(b.z - a.z))
 #define vec3_add(dest, a, b) (dest).x = (a).x + (b).x; (dest).y = (a).y + (b).y; (dest).z = (a).z + (b).z
+
+inline void vec3_copy(Vector3* v, Vector3* src)
+{
+    v->x = src->x;
+    v->y = src->y;
+    v->z = src->z;
+}
 
 inline void vec3_mul(Vector3* v, float s)
 {

@@ -42,14 +42,14 @@ void projectTunnel()
     for (i = 0; i < s_numSegments * 4; i++)
     {
         float z;
-        vec3_copy(w, m_world[i]);
+        vec3_copy(&w, &m_world[i]);
 
         z = 1.0f / w.z;
         s.x = X_CENTRE + (w.x * s_projXscale * z);
         s.y = Y_CENTRE + (w.y * s_projYscale * z);
         s.z = z;
 
-        vec3_copy(m_screen[i], s);
+        vec3_copy(&m_screen[i], &s);
     }
 }
 
@@ -63,7 +63,7 @@ static void renderTunnel()
     {
         int x, y, j;
         BYTE colour = (BYTE)((m_screen[i].z * 127.0f) + (((i >> 2) & 1) << 7));
-        vec3_copy(screen, m_screen[i]);
+        vec3_copy(&screen, &m_screen[i]);
 
         x = (int)screen.x;
         y = (int)screen.y;
