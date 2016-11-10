@@ -1,44 +1,50 @@
 #include "poly.h"
 #include "video.h"
+#include <math.h>
 
 #define swap(x, y) x = x ^ y; y = y ^ x; x = x ^ y
 
-void hline(int x1, int col1, int x2, int col2, int y, BYTE* buffer)
+void hline(float x1, float col1, float x2, float col2, int y, BYTE* buffer)
 {
-    int i;
+    int i, xx1, cc1, xx2, cc2;
     float cgrad, cer;
 
-    if (x2 < x1)
+    xx1 = (int)x1;
+    cc1 = (int)col1;
+    xx2 = (int)x2;
+    cc2 = (int)col2;
+
+    if (xx2 < xx1)
     {
-        swap(x2, x1);
-        swap(col2, col1);
+        swap(xx2, xx1);
+        swap(cc2, cc1);
     }
 
-    if (x2 < 0)
+    if (xx2 < 0)
         return;
 
-    if (x1 >= SCREEN_WIDTH)
+    if (xx1 >= SCREEN_WIDTH)
         return;
 
-    if ((x2 - x1) == 0)
+    if ((xx2 - xx1) == 0)
     {
-        buffer[x1 + (y*SCREEN_WIDTH)] = col1;
+        buffer[xx1 + (y*SCREEN_WIDTH)] = cc1;
         return;
     }
 
-    cgrad = (col2 -col1) / (float)(x2 - x1);
-    cer = col1;
-    if (x1 < 0)
+    cgrad = (cc2 - cc1) / (float)(xx2 - xx1);
+    cer = cc1;
+    if (xx1 < 0)
     {
-        cer = cer + (-x1 * cgrad);
-        x1 = 0;
+        cer = cer + (-xx1 * cgrad);
+        xx1 = 0;
     }
 
-    buffer += x1 + (y * SCREEN_WIDTH);
-    if (x2 >= SCREEN_WIDTH)
-        x2 = SCREEN_WIDTH - 1;;
+    if (xx2 >= SCREEN_WIDTH)
+        xx2 = SCREEN_WIDTH - 1;;
 
-    for (i = x1; i < x2; i++)
+    buffer += xx1 + (y * SCREEN_WIDTH);
+    for (i = xx1; i <= xx2; i++)
     {
         *buffer = (BYTE)cer;
         cer += cgrad;
@@ -147,7 +153,7 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
     else
     {
         // if top isn't horizontal
-        adder = 0; // 1?
+        adder = 1;
         xgrad1 = (x2 - x1) / (float)temp1;
         cgrad1 = (c2 - c1) / (float)temp1;
 
@@ -203,9 +209,9 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
         // if not horizontal on top, do first fill
         if (temp1 != 0)
         {
-            for (i = y1; i < y2; i++)
+            for (i = y1; i <= y2; i++)
             {
-                hline((int)xer1, (int)cer1, (int)xer2, (int)cer2, i, buffer);
+                hline(xer1, cer1, xer2, cer2, i, buffer);
 
                 xer1 += xgrad1;
                 xer2 += xgrad2;
@@ -216,8 +222,8 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
 
             xgrad1 = xgrad3;
             cgrad1 = cgrad3;
-            //xer1 = x2 + xgrad1; // to eliminate fractional errors
-            //cer1 = c2 + cgrad1;
+            xer1 = x2 + xgrad1; // to eliminate fractional errors
+            cer1 = c2 + cgrad1;
         }
     }
 
@@ -227,9 +233,9 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
     // if not horizontal on bottom, fill it
     if (temp3 != 0)
     {
-        for (i = y2+adder; i < y3; i++)
+        for (i = y2+adder; i <= y3; i++)
         {
-            hline((int)xer1, (int)cer1, (int)xer2, (int)cer2, i, buffer);
+            hline(xer1, cer1, xer2, cer2, i, buffer);
 
             xer1 += xgrad1;
             xer2 += xgrad2;

@@ -1,10 +1,11 @@
+#include <math.h>
+#include <stdio.h>
+#include "log.h"
 #include "polytun.h"
 #include "video.h"
 #include "vector3.h"
 #include "kb.h"
 #include "poly.h"
-#include <math.h>
-#include <stdio.h>
 
 static const float X_CENTRE = SCREEN_WIDTH * 0.5f;
 static const float Y_CENTRE = SCREEN_HEIGHT * 0.5f;
@@ -77,24 +78,26 @@ static void renderTunnel()
             vec3_copy(&a, &m_screen[prevSegment + j]);
             vec3_copy(&b, &m_screen[prevSegment + ofs]);
             vec3_copy(&c, &m_screen[currSegment + j]);
-            poly_draw(&a, prevColour, &b, prevColour, &c, currColour, buffer);
+            //if (a.z > 0 && b.z > 0 && c.z > 0)
+                poly_draw(&a, prevColour, &b, prevColour, &c, currColour, buffer);
 
             vec3_copy(&a, &m_screen[currSegment + j]);
             vec3_copy(&b, &m_screen[prevSegment + ofs]);
             vec3_copy(&c, &m_screen[currSegment + ofs]);
-            poly_draw(&a, currColour, &b, prevColour, &c, currColour, buffer);
+            //if (a.z > 0 && b.z > 0 && c.z > 0)
+                poly_draw(&a, currColour, &b, prevColour, &c, currColour, buffer);
         }
     }
 }
 
 static int init()
 {
-    float z = 1.5f;
+    float z = 1.2f;
     int i;
     for (i = 0; i < MAX_SEGMENTS; i++)
     {
         addSegment(z);
-        z += 0.1f;
+        z += 1.5f;
     }
 
     vec3_set(&s_camera, 0, 0, 0);
@@ -127,6 +130,14 @@ static void update(float dt)
 
     projectTunnel();
     renderTunnel();
+
+    // {
+    //     Vector3 a, b, c;
+    //     vec3_set(&a, 211, 142.7f, 0);
+    //     vec3_set(&b, 275, 3.7f, 0);
+    //     vec3_set(&c, 211, 57, 0);
+    //     poly_draw(&a, 127, &b, 127, &c, 127, video_getOffscreenBuffer());
+    // }
 
     if (kb_keyDown(Key_Up))
     {
