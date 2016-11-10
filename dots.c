@@ -1,5 +1,6 @@
 #include <math.h>
 #include <memory.h>
+#include <stdlib.h>
 #include "dots.h"
 #include "video.h"
 #include "vector3.h"
@@ -17,11 +18,17 @@ typedef struct Particle_tag
     Image* image;
 } Particle;
 
-#define MAX_PARTICLES 2048
+#define MAX_PARTICLES 4096
 static Particle s_particles[MAX_PARTICLES];
 static const float RADIUS = 150.0f;
 static Vector3 s_centre = { SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f };
 static float s_maxAcceleration = 40.0f;
+
+#define DO_BLUR 0
+
+#if DO_BLUR
+static BYTE* s_blurBuffer;
+#endif
 
 Image* images[3];
 
@@ -94,6 +101,11 @@ static int init()
     memcpy(images[0]->pixels, s_dot, 3*3);
     memcpy(images[1]->pixels, s_dot2, 3*3);
     memcpy(images[2]->pixels, s_dot3, 3*3);
+
+#if DO_BLUR
+    s_blurBuffer = (BYTE*)malloc(SCREEN_WIDTH*SCREEN_HEIGHT);
+    video_clear(s_blurBuffer, 0, (SCREEN_WIDTH*SCREEN_HEIGHT)>>2);
+#endif
 
     for (i = 0; i < MAX_PARTICLES; i++)
     {
@@ -172,16 +184,68 @@ static void drawParticle(Particle* p)
 
 static float s_timer;
 
+#if DO_BLUR
+static int s_blurAmount = 0;
+static int s_blurAdder = 1;
+#endif
+
+#if DO_BLUR
+static void blur()
+{
+    int x, y;
+    BYTE* buffer = video_getOffscreenBuffer();
+
+    if (s_blurAmount == 0)
+        return;
+
+    for (y = 10; y < SCREEN_HEIGHT - 10; y++)
+    {
+        for (x = s_blurAmount; x < SCREEN_WIDTH - s_blurAmount; x++)
+        {
+            int xx;
+            int ofs = x + (y * SCREEN_WIDTH);
+            BYTE* pixel = s_blurBuffer + ofs;
+            BYTE* b = buffer + ofs - s_blurAmount;
+            DWORD c = 0;
+
+            for (xx = -s_blurAmount; xx < s_blurAmount; xx++)
+            {
+                c += *b;
+                b++;
+            }
+
+            c /= (s_blurAmount << 1);
+            *pixel = c;
+        }
+    }
+
+    // FIXME: Just copy s_blurBuffer directly to the screen.
+    video_flip(s_blurBuffer, buffer, SCREEN_WIDTH * SCREEN_HEIGHT);
+}
+#endif
+
 static void update(float dt)
 {
     int i;
 
     s_timer += dt;
-    if (s_timer > 0.2f)
+    if (s_timer > 0.1f)
     {
         s_timer = 0.0f;
         addParticles(200);
     }
+
+#if DO_BLUR
+    s_blurAmount += s_blurAdder;
+    if (s_blurAmount == 10)
+    {
+        s_blurAdder = -1;
+    }
+    else if (s_blurAmount == 0)
+    {
+        s_blurAdder = 1;
+    }
+#endif
 
     for (i = 0; i < MAX_PARTICLES; i++)
     {
@@ -210,17 +274,21 @@ static void update(float dt)
         d->life -= dt;
     }
 
+#if DO_BLUR
+    blur();
+
     if (kb_keyDown(Key_A))
     {
         if (kb_keyDown(Key_LShift))
         {
-            s_maxAcceleration -= 1;
+            s_blurAmount -= 1;
         }
         else
         {
-            s_maxAcceleration += 1;
+            s_blurAmount += 1;
         }
     }
+#endif
 }
 
 static EffectDesc s_desc = { init, update, start };
