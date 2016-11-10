@@ -12,6 +12,7 @@ typedef struct EffectDesc_tag
     Effect_StartFunc start;
 
     char started;
+    char clearBuffer;
 } EffectDesc;
 
 #endif

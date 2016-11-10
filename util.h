@@ -12,7 +12,7 @@ inline float lerpf(float a, float b, float t)
     return (b * t) + ((1 - t) * a);
 }
 
-inline float clamp(float value, float min, float max)
+inline float clampf(float value, float min, float max)
 {
     return value > max ? max : value < min ? min : value;
 }
