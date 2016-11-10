@@ -21,7 +21,7 @@ ParticleSystem* ps_create(int maxParticles)
 
 void ps_updateAndDraw(ParticleSystem* ps, BYTE* buffer, float dt)
 {
-    int x, y, xx, yy, i, width, height;
+    int x, y, xx, yy, i, width, height; //, prevx, prevy;
     Image* image;
     BYTE* pixels, *b;
     float life;
@@ -43,6 +43,9 @@ void ps_updateAndDraw(ParticleSystem* ps, BYTE* buffer, float dt)
         p = &d->position;
         v = &d->velocity;
         a = &d->acceleration;
+
+        // prevx = (int)p->x;
+        // prevy = (int)p->y;
 
         // Apply acceleration to velocity.
         vec2_copy(&tmp, a);
@@ -78,12 +81,28 @@ void ps_updateAndDraw(ParticleSystem* ps, BYTE* buffer, float dt)
             {
                 BYTE col = *pixels;
                 BYTE c = *b;
-                *b = (BYTE)clampf((col * life) + c, 0, 255);
+                *b = (BYTE)min((col * life) + c, 255);
                 b++;
                 pixels++;
             }
 
             b += SCREEN_WIDTH - image->width;
         }
+
+        // pixels = image->pixels;
+        // b = buffer + prevx + (prevy * SCREEN_WIDTH);
+        // for (yy = 0; yy < height; yy++)
+        // {
+        //     for (xx = 0; xx < width; xx++)
+        //     {
+        //         BYTE col = *pixels;
+        //         BYTE c = *b;
+        //         *b = (BYTE)min((col * life) + c, 255);
+        //         b++;
+        //         pixels++;
+        //     }
+
+        //     b += SCREEN_WIDTH - image->width;
+        // }
     }
 }
