@@ -62,13 +62,15 @@ int main()
 
     while (!kb_keyDown(Key_Escape))
     {
+        static const float dt = 1.0f / 60.0f;
+
         if (!currentEffect->started)
         {
             currentEffect->started = 1;
             currentEffect->start();
         }
 
-        currentEffect->update();
+        currentEffect->update(dt);
 
         video_waitForRetrace();
         video_flip(buffer, (void*)0xa0000, bufferSize);

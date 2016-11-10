@@ -102,7 +102,7 @@ static void start()
 
 float scale = 0.8333f;
 
-static void update()
+static void update(float dt)
 {
     s_projXscale = SCREEN_WIDTH / (2.0f * (float)tan(s_fovHori * 0.5f * PI / 180.0f));
     s_projYscale = s_projXscale * ASPECT;

@@ -2,7 +2,7 @@
 #define _effect_h
 
 typedef int (*Effect_InitFunc)();
-typedef void (*Effect_UpdateFunc)();
+typedef void (*Effect_UpdateFunc)(float);
 typedef void (*Effect_StartFunc)();
 
 typedef struct EffectDesc_tag
