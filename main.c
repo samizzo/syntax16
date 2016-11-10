@@ -12,8 +12,8 @@ Array* g_effects;
 
 void registerEffects()
 {
-    array_add(g_effects, dots_getEffectDesc());
     array_add(g_effects, polytun_getEffectDesc());
+    array_add(g_effects, dots_getEffectDesc());
 }
 
 int initEffects()
