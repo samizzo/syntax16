@@ -2,6 +2,7 @@
 #include "video.h"
 #include "vector3.h"
 #include "kb.h"
+#include "poly.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -55,24 +56,29 @@ void projectTunnel()
 
 static void renderTunnel()
 {
-    Vector3 screen;
     int i;
     BYTE* buffer = video_getOffscreenBuffer();
 
-    for (i = 0; i < s_numSegments; i++)
+    for (i = 1; i < s_numSegments; i++)
     {
-        int x, y, j;
-        BYTE colour = (BYTE)((m_screen[i].z * 127.0f) + (((i >> 2) & 1) << 7));
-        vec3_copy(&screen, &m_screen[i]);
-
-        x = (int)screen.x;
-        y = (int)screen.y;
-        if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT)
-            buffer[x + (y * SCREEN_WIDTH)] = colour;
+        int j;
+        int prevSegment = (i - 1) * 4;
+        int currSegment = i * 4;
+        BYTE prevColour = (BYTE)((m_screen[prevSegment].z * 127.0f) + (((i >> 2) & 1) << 7));
+        BYTE currColour = (BYTE)((m_screen[currSegment].z * 127.0f) + (((i >> 2) & 1) << 7));
 
         for (j = 0; j < 4; j++)
         {
-            
+            Vector3 a, b, c;
+            vec3_copy(&a, &m_screen[prevSegment + j]);
+            vec3_copy(&b, &m_screen[(prevSegment + 3 + j) & 3]);
+            vec3_copy(&c, &m_screen[currSegment + j]);
+            poly_draw(&a, prevColour, &b, prevColour, &c, currColour, buffer);
+
+            vec3_copy(&a, &m_screen[currSegment + j]);
+            vec3_copy(&b, &m_screen[(prevSegment + 3 + j) & 3]);
+            vec3_copy(&c, &m_screen[(currSegment + 3 + j) & 3]);
+            poly_draw(&a, currColour, &b, prevColour, &c, currColour, buffer);
         }
     }
 }
@@ -100,8 +106,6 @@ static void start()
     }
 }
 
-float scale = 0.8333f;
-
 static void update(float dt)
 {
     s_projXscale = SCREEN_WIDTH / (2.0f * (float)tan(s_fovHori * 0.5f * PI / 180.0f));
@@ -121,15 +125,9 @@ static void update(float dt)
 
     if (kb_keyDown(Key_Up))
     {
-        s_fovHori += 0.1f;
-        if (s_fovHori > 90.0f)
-            s_fovHori = 90.0f;
     }
     else if (kb_keyDown(Key_Down))
     {
-        s_fovHori -= 0.1f;
-        if (s_fovHori < 10.0f)
-            scale = 10.0f;
     }
 }
 
