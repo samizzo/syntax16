@@ -114,7 +114,7 @@ void video_drawPalette()
     BYTE* buffer = video_getOffscreenBuffer();
     for (x = 0; x < 256; x++)
     {
-        for (y = 0; y < SCREEN_HEIGHT; y++)
+        for (y = 0; y < 10; y++)
         {
             buffer[x + (y * SCREEN_WIDTH)] = (BYTE)x;
         }
