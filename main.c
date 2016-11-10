@@ -59,6 +59,7 @@ int main()
     currentEffect = (EffectDesc*)array_get(g_effects, 0);
 
     buffer = video_getOffscreenBuffer();
+    video_clear(buffer, 0, bufferSize);
 
     while (!kb_keyDown(Key_Escape))
     {
@@ -74,7 +75,8 @@ int main()
 
         video_waitForRetrace();
         video_flip(buffer, (void*)0xa0000, bufferSize);
-        video_clear(buffer, 0, bufferSize);
+        if (currentEffect->clearBuffer)
+            video_clear(buffer, 0, bufferSize);
     }
 
     cleanup();

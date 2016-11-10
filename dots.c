@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include "dots.h"
 #include "video.h"
-#include "vector3.h"
+#include "Vector2.h"
+#include "Vector3.h"
 #include "kb.h"
 #include "image.h"
 #include "log.h"
@@ -13,7 +14,7 @@
 static const int MAX_PARTICLES = 4096;
 static ParticleSystem* s_system;
 static const float RADIUS = 150.0f;
-static Vector3 s_centre = { SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f };
+static Vector2 s_centre = { SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f };
 static float s_maxAcceleration = 40.0f;
 
 #define DO_BLUR 0
@@ -23,11 +24,12 @@ static BYTE* s_blurBuffer;
 #endif
 
 Image* images[3];
+BYTE* palette;
 
 static BYTE s_dot[3*3] =
 {
     0,   80, 0,
-    70, 100, 100,
+    70, 255, 100,
     0,   50, 0,
 };
 
@@ -40,9 +42,9 @@ static BYTE s_dot2[3*3] =
 
 static BYTE s_dot3[3*3] =
 {
-    0,   40, 0,
-    60, 180, 40,
-    0,   30, 0,
+    0,   70, 0,
+    70, 180, 40,
+    0,   20, 0,
 };
 
 static void addParticles(int num)
@@ -56,27 +58,26 @@ static void addParticles(int num)
         Particle* d = particles + j;
         if (d->life <= 0.0f)
         {
-            Vector3* p = &d->position;
-            Vector3* v = &d->velocity;
-            Vector3* a = &d->acceleration;
+            Vector2* p = &d->position;
+            Vector2* v = &d->velocity;
+            Vector2* a = &d->acceleration;
             float t;
 
-            vec3_set(v, 0, 0, 0);
+            vec2_set(v, 0, 0, 0);
 
             // Randomise position around circle.
             t = randomf();
             p->x = (cos(t * 2.0f * PI) * RADIUS * 0.5f);
             p->y = (sin(t * 2.0f * PI) * RADIUS * 0.5f);
-            p->z = 0.0f;
-            vec3_add(p, p, &s_centre);
+            vec2_add(p, p, &s_centre);
 
             // Randomise acceleration.
-            vec3_sub(a, &s_centre, p);
-            vec3_normalise(a);
-            vec3_mul(a, randomf() * s_maxAcceleration);
+            vec2_sub(a, &s_centre, p);
+            vec2_normalise(a);
+            vec2_mul(a, randomf() * s_maxAcceleration);
 
             d->life = 1.5f;
-            d->image = images[random() & 2];
+            d->image = images[2]; //images[random() & 2];
 
             num--;
             if (num == 0)
@@ -88,6 +89,8 @@ static void addParticles(int num)
 static int init()
 {
     int i;
+
+    palette = image_loadPalette("data/pal1.pal");
 
     for (i = 0; i < 3; i++)
         images[i] = image_create(3, 3);
@@ -110,7 +113,7 @@ static int init()
     //     return 0;
     // }
 
-    // image_remapPaletteLinear(image);
+    //image_remapPaletteLinear(palette);
 
     return 1;
 }
@@ -131,7 +134,7 @@ static void start()
         video_setPal((BYTE)i, (BYTE)col.x, (BYTE)col.y, (BYTE)col.z);
     }
 
-    //video_setPalette(image->palette);
+    video_setPalette(palette);
 }
 
 static float s_timer;
@@ -197,7 +200,21 @@ static void update(float dt)
     }
 #endif
 
+    //video_drawPalette();
+
     ps_updateAndDraw(s_system, video_getOffscreenBuffer(), dt);
+
+    {
+        int x;
+        BYTE* b = video_getOffscreenBuffer();
+        for (x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++)
+        {
+            int c = *b;
+            c = max(0, c - 30);
+            *b = c;
+            b++;
+        }
+    }
 
 #if DO_BLUR
     blur();
@@ -216,7 +233,7 @@ static void update(float dt)
 #endif
 }
 
-static EffectDesc s_desc = { init, update, start };
+static EffectDesc s_desc = { init, update, start, 0, 0 };
 
 EffectDesc* dots_getEffectDesc()
 {

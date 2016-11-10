@@ -133,7 +133,7 @@ static void update(float dt)
     }
 }
 
-static EffectDesc s_desc = { init, update, start };
+static EffectDesc s_desc = { init, update, start, 0, 1 };
 
 EffectDesc* polytun_getEffectDesc()
 {
