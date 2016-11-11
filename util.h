@@ -31,4 +31,10 @@ inline float randomf()
     return random() / (float)0x7fff;
 }
 
+// Copy src to dst. Size is in dwords.
+void util_blit(void* src, void* dst, DWORD size);
+
+// Clear dest to col (8 pixels at once). Size is in dwords.
+void util_clear(void *dest, DWORD col, DWORD size);
+
 #endif

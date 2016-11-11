@@ -42,28 +42,6 @@ void video_waitForRetrace()
     }
 }
 
-void video_flip(void *src, void *dest, DWORD size)
-{
-    __asm
-    {
-        mov esi, src
-        mov edi, dest
-        mov ecx, size
-        rep movsd
-    }
-}
-
-void video_clear(void *dest, DWORD col, DWORD size)
-{
-    __asm
-    {
-        mov edi, dest
-        mov eax, col
-        mov ecx, size
-        rep stosd
-    }
-}
-
 BYTE* video_getOffscreenBuffer()
 {
     return s_buffer;
