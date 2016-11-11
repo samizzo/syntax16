@@ -1,6 +1,7 @@
 #include "poly.h"
 #include "video.h"
 #include <math.h>
+#include "log.h"
 
 #define swap(x, y) x = x ^ y; y = y ^ x; x = x ^ y
 
@@ -9,10 +10,10 @@ void hline(float x1, float col1, float x2, float col2, int y, BYTE* buffer)
     int i, xx1, cc1, xx2, cc2;
     float cgrad, cer;
 
-    xx1 = (int)x1;
-    cc1 = (int)col1;
-    xx2 = (int)x2;
-    cc2 = (int)col2;
+    xx1 = (int)(x1+0.5f);
+    cc1 = (int)(col1+0.5f);
+    xx2 = (int)(x2+0.5f);
+    cc2 = (int)(col2+0.5f);
 
     if (xx2 < xx1)
     {
@@ -85,12 +86,12 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
     int i, adder;
     int x1, y1, x2, y2, x3, y3;
 
-    x1 = (int)p1->x;
-    y1 = (int)p1->y;
-    x2 = (int)p2->x;
-    y2 = (int)p2->y;
-    x3 = (int)p3->x;
-    y3 = (int)p3->y;
+    x1 = (int)(p1->x+0.5f);
+    y1 = (int)(p1->y+0.5f);
+    x2 = (int)(p2->x+0.5f);
+    y2 = (int)(p2->y+0.5f);
+    x3 = (int)(p3->x+0.5f);
+    y3 = (int)(p3->y+0.5f);;
 
     // buffer[x1 + (y1*320)] = c1;
     // buffer[x2 + (y2*320)] = c2;
@@ -220,9 +221,10 @@ void poly_draw(Vector3* p1, BYTE c1, Vector3* p2, BYTE c2, Vector3* p3, BYTE c3,
                 cer2 += cgrad2;
             }
 
+            // switch to gradients for bottom half of triangle
             xgrad1 = xgrad3;
             cgrad1 = cgrad3;
-            xer1 = x2 + xgrad1; // to eliminate fractional errors
+            xer1 = x2 + xgrad1;
             cer1 = c2 + cgrad1;
         }
     }
