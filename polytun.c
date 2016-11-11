@@ -78,8 +78,8 @@ static void renderTunnel()
         int j;
         int prevSegment = (i - 1) * 4;
         int currSegment = i * 4;
-        float prevZNorm = 1.0f - ((m_screen[prevSegment].z - START_Z + s_camera.z) / MAX_Z);
-        float currZNorm = 1.0f - ((m_screen[currSegment].z - START_Z + s_camera.z) / MAX_Z);
+        float prevZNorm = clampf(1.0f - ((m_screen[prevSegment].z - START_Z) / MAX_Z), 0.0f, 1.0f);
+        float currZNorm = clampf(1.0f - ((m_screen[currSegment].z - START_Z) / MAX_Z), 0.0f, 1.0f);
         BYTE prevColour = col + (BYTE)(prevZNorm * 127.0f);
         BYTE currColour = col + (BYTE)(currZNorm * 127.0f);
         col ^= 128;
@@ -135,8 +135,9 @@ static void update(float dt)
 
     projectTunnel();
     renderTunnel();
+    //video_drawPalette();
 
-    s_camera.z += dt * 2.0f;
+    s_camera.z += dt * 4.0f;
     // if (kb_keyDown(Key_Up))
     //     s_camera.z += dt;
     // if (kb_keyDown(Key_Down))
