@@ -19,6 +19,9 @@ static int s_numSegments = 0;
 static float s_projXscale;
 static float s_projYscale;
 static Vector3 s_camera;
+#define START_Z 0.8f
+#define Z_INC 0.5f
+static const float MAX_Z = (MAX_SEGMENTS - 1) * Z_INC;
 
 // Adds a segment to the end of the list with the specified z position.
 static void addSegment(float z)
@@ -51,7 +54,7 @@ void projectTunnel()
         z = 1.0f / w.z;
         s.x = X_CENTRE + (w.x * s_projXscale * z);
         s.y = Y_CENTRE + (w.y * s_projYscale * z);
-        s.z = z;
+        s.z = w.z;
 
         vec3_copy(&m_screen[i], &s);
     }
@@ -60,6 +63,7 @@ void projectTunnel()
 static void renderTunnel()
 {
     int i;
+    BYTE col = 0;
     BYTE* buffer = video_getOffscreenBuffer();
 
     for (i = 1; i < s_numSegments; i++)
@@ -67,8 +71,11 @@ static void renderTunnel()
         int j;
         int prevSegment = (i - 1) * 4;
         int currSegment = i * 4;
-        BYTE prevColour = (BYTE)i; //(BYTE)((m_screen[prevSegment].z * 127.0f) + (((i >> 2) & 1) << 7));
-        BYTE currColour = prevColour; //(BYTE)((m_screen[currSegment].z * 127.0f) + (((i >> 2) & 1) << 7));
+        float prevZNorm = 1.0f - ((m_screen[prevSegment].z - START_Z) / MAX_Z);
+        float currZNorm = 1.0f - ((m_screen[currSegment].z - START_Z) / MAX_Z);
+        BYTE prevColour = col + (BYTE)(prevZNorm * 127.0f);
+        BYTE currColour = col + (BYTE)(currZNorm * 127.0f);
+        col ^= 128;
 
         for (j = 0; j < 4; j++)
         {
@@ -78,13 +85,12 @@ static void renderTunnel()
             vec3_copy(&a, &m_screen[prevSegment + j]);
             vec3_copy(&b, &m_screen[prevSegment + ofs]);
             vec3_copy(&c, &m_screen[currSegment + j]);
-            //if (a.z > 0 && b.z > 0 && c.z > 0)
+            if (a.z > 0 && b.z > 0 && c.z > 0)
                 poly_draw(&a, prevColour, &b, prevColour, &c, currColour, buffer);
 
             vec3_copy(&a, &m_screen[currSegment + j]);
-            vec3_copy(&b, &m_screen[prevSegment + ofs]);
             vec3_copy(&c, &m_screen[currSegment + ofs]);
-            //if (a.z > 0 && b.z > 0 && c.z > 0)
+            if (a.z > 0 && b.z > 0 && c.z > 0)
                 poly_draw(&a, currColour, &b, prevColour, &c, currColour, buffer);
         }
     }
@@ -92,12 +98,13 @@ static void renderTunnel()
 
 static int init()
 {
-    float z = 1.2f;
+    float z = START_Z;
     int i;
     for (i = 0; i < MAX_SEGMENTS; i++)
     {
+        log_debug("%.4f\n", z);
         addSegment(z);
-        z += 1.5f;
+        z += Z_INC;
     }
 
     vec3_set(&s_camera, 0, 0, 0);
@@ -108,18 +115,10 @@ static int init()
 static void start()
 {
     int i;
-    for (i = 1; i <= 128; i++)
+    for (i = 0; i < 128; i++)
     {
-        if ((i & 1) == 1)
-        {
-            video_setPal((BYTE)i, 63, 0, 0);
-        }
-        else
-        {
-            video_setPal((BYTE)i, 0, 32, 0);
-        }
-        // video_setPal((BYTE)i, (BYTE)(i >> 2), (BYTE)(i >> 2), (BYTE)(i >> 1));
-        // video_setPal((BYTE)(i + 128), (BYTE)(i >> 1), (BYTE)(i >> 2), (BYTE)(i >> 8));
+        video_setPal((BYTE)i, (BYTE)(i >> 2), (BYTE)(i >> 2), (BYTE)(i >> 1));
+        video_setPal((BYTE)(i + 128), (BYTE)(i >> 1), (BYTE)(i >> 2), (BYTE)(i >> 8));
     }
 }
 
@@ -130,14 +129,6 @@ static void update(float dt)
 
     projectTunnel();
     renderTunnel();
-
-    // {
-    //     Vector3 a, b, c;
-    //     vec3_set(&a, 211, 142.7f, 0);
-    //     vec3_set(&b, 275, 3.7f, 0);
-    //     vec3_set(&c, 211, 57, 0);
-    //     poly_draw(&a, 127, &b, 127, &c, 127, video_getOffscreenBuffer());
-    // }
 
     if (kb_keyDown(Key_Up))
     {
