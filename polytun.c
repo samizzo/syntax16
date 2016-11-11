@@ -23,6 +23,8 @@ static Vector3 s_camera;
 #define Z_INC 0.5f
 static const float MAX_Z = (MAX_SEGMENTS - 1) * Z_INC;
 static BYTE s_invert = 0;
+static float s_timer = 0;
+static float s_speed = 4.0f;
 
 // Adds a segment to the end of the list with the specified z position.
 static void addSegment(float z)
@@ -40,10 +42,35 @@ static void addSegment(float z)
     s_numSegments++;
 }
 
-void updateTunnel()
+void updateTunnel(float dt)
 {
-    s_camera.z = 0.0f;
-    s_invert ^= 1;
+    int i;
+    float inc = dt * s_speed;
+    s_timer += inc;
+    for (i = 0; i < s_numSegments * 4; i++)
+        m_world[i].z -= inc;
+
+    if (s_timer >= Z_INC)
+    {
+        float z = START_Z;
+
+        s_numSegments--;
+        util_blit(&m_world[4], &m_world[0], (s_numSegments * 4 * sizeof(float)) >> 2);
+
+        for (i = 0; i < s_numSegments * 4; i += 4)
+        {
+            m_world[i+0].z = z;
+            m_world[i+1].z = z;
+            m_world[i+2].z = z;
+            m_world[i+3].z = z;
+            z += Z_INC;
+        }
+
+        addSegment(z);
+
+        s_timer = 0;
+        s_invert ^= 1;
+    }
 }
 
 void projectTunnel()
@@ -135,15 +162,7 @@ static void update(float dt)
 
     projectTunnel();
     renderTunnel();
-    //video_drawPalette();
-
-    s_camera.z += dt * 4.0f;
-    // if (kb_keyDown(Key_Up))
-    //     s_camera.z += dt;
-    // if (kb_keyDown(Key_Down))
-    //     s_camera.z -= dt;
-    if (s_camera.z >= Z_INC)
-        updateTunnel();
+    updateTunnel(dt);
 }
 
 static EffectDesc s_desc = { init, update, start, 0, 1 };

@@ -172,7 +172,7 @@ static void blur()
     }
 
     // FIXME: Just copy s_blurBuffer directly to the screen.
-    video_flip(s_blurBuffer, buffer, SCREEN_WIDTH * SCREEN_HEIGHT);
+    util_blit(s_blurBuffer, buffer, SCREEN_WIDTH * SCREEN_HEIGHT);
 }
 #endif
 
