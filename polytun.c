@@ -22,6 +22,7 @@ static Vector3 s_camera;
 #define START_Z 0.8f
 #define Z_INC 0.5f
 static const float MAX_Z = (MAX_SEGMENTS - 1) * Z_INC;
+static BYTE s_invert = 0;
 
 // Adds a segment to the end of the list with the specified z position.
 static void addSegment(float z)
@@ -37,6 +38,12 @@ static void addSegment(float z)
     vec3_set(&m_world[ofs+3], -0.5f, 0.5f, z); // bottom left
 
     s_numSegments++;
+}
+
+void updateTunnel()
+{
+    s_camera.z = 0.0f;
+    s_invert ^= 1;
 }
 
 void projectTunnel()
@@ -63,7 +70,7 @@ void projectTunnel()
 static void renderTunnel()
 {
     int i;
-    BYTE col = 0;
+    BYTE col = s_invert ? 128 : 0;
     BYTE* buffer = video_getOffscreenBuffer();
 
     for (i = 1; i < s_numSegments; i++)
@@ -71,8 +78,8 @@ static void renderTunnel()
         int j;
         int prevSegment = (i - 1) * 4;
         int currSegment = i * 4;
-        float prevZNorm = 1.0f - ((m_screen[prevSegment].z - START_Z) / MAX_Z);
-        float currZNorm = 1.0f - ((m_screen[currSegment].z - START_Z) / MAX_Z);
+        float prevZNorm = 1.0f - ((m_screen[prevSegment].z - START_Z + s_camera.z) / MAX_Z);
+        float currZNorm = 1.0f - ((m_screen[currSegment].z - START_Z + s_camera.z) / MAX_Z);
         BYTE prevColour = col + (BYTE)(prevZNorm * 127.0f);
         BYTE currColour = col + (BYTE)(currZNorm * 127.0f);
         col ^= 128;
@@ -102,7 +109,6 @@ static int init()
     int i;
     for (i = 0; i < MAX_SEGMENTS; i++)
     {
-        log_debug("%.4f\n", z);
         addSegment(z);
         z += Z_INC;
     }
@@ -130,14 +136,13 @@ static void update(float dt)
     projectTunnel();
     renderTunnel();
 
-    if (kb_keyDown(Key_Up))
-    {
-        s_camera.z += dt;
-    }
-    else if (kb_keyDown(Key_Down))
-    {
-        s_camera.z -= dt;
-    }
+    s_camera.z += dt * 2.0f;
+    // if (kb_keyDown(Key_Up))
+    //     s_camera.z += dt;
+    // if (kb_keyDown(Key_Down))
+    //     s_camera.z -= dt;
+    if (s_camera.z >= Z_INC)
+        updateTunnel();
 }
 
 static EffectDesc s_desc = { init, update, start, 0, 1 };
