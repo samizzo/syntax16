@@ -2,19 +2,23 @@
 #include <stdlib.h>
 #include "video.h"
 #include "kb.h"
-#include "polytun.h"
-#include "dots.h"
 #include "array.h"
 #include "image.h"
 #include "log.h"
 #include "control.h"
 
+// Effects
+#include "polytun.h"
+#include "dots.h"
+#include "plasma.h"
+
 Array* g_effects;
 
 void registerEffects()
 {
-    array_add(g_effects, polytun_getEffectDesc());
+    array_add(g_effects, plasma_getEffectDesc());
     array_add(g_effects, dots_getEffectDesc());
+    array_add(g_effects, polytun_getEffectDesc());
 }
 
 int initEffects()

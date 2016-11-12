@@ -22,7 +22,8 @@ OBJ_FILES = $(OUTPUT_DIR)\main.obj &
 	$(OUTPUT_DIR)\util.obj &
 	$(OUTPUT_DIR)\particle.obj &
 	$(OUTPUT_DIR)\poly.obj &
-	$(OUTPUT_DIR)\control.obj
+	$(OUTPUT_DIR)\control.obj &
+	$(OUTPUT_DIR)\plasma.obj
 EXE_FILE = $(OUTPUT_DIR)\test.exe
 
 default: make_dirs $(EXE_FILE)
