@@ -62,18 +62,19 @@ void ps_updateAndDraw(ParticleSystem* ps, BYTE* buffer, float dt)
         // Update lifetime.
         d->life -= dt;
 
+        image = d->image;
+        width = image->width;
+        height = image->height;
+
         // Draw it.
-        x = (int)p->x;
-        y = (int)p->y;
+        x = (int)p->x - (width >> 1);
+        y = (int)p->y - (height >> 1);
 
         if (x < 0 || x >= SCREEN_WIDTH || y < 0 || y >= SCREEN_HEIGHT)
             continue;
 
-        image = d->image;
         pixels = image->pixels;
         b = buffer + x + (y * SCREEN_WIDTH);
-        width = image->width;
-        height = image->height;
 
         for (yy = 0; yy < height; yy++)
         {
