@@ -47,7 +47,7 @@ void hline(float x1, float col1, float x2, float col2, int y, BYTE* buffer)
     buffer += xx1 + (y * SCREEN_WIDTH);
     for (i = xx1; i <= xx2; i++)
     {
-        *buffer = (BYTE)cer;
+        *buffer = (BYTE)(cer + 0.5f);
         cer += cgrad;
         buffer++;
     }
