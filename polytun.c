@@ -12,7 +12,11 @@ static const float Y_CENTRE = SCREEN_HEIGHT * 0.5f;
 static const float ASPECT = (SCREEN_HEIGHT / (float)SCREEN_WIDTH) * (320.0f / 240.0f);
 static float s_fovHori = 60.0f;
 
+#if defined(DEBUG)
+#define MAX_SEGMENTS 10
+#else
 #define MAX_SEGMENTS 20
+#endif
 static Vector3 m_world[MAX_SEGMENTS * 4];
 static Vector3 m_screen[MAX_SEGMENTS * 4];
 static int s_numSegments = 0;
@@ -27,6 +31,10 @@ static float s_moveTimer = 0;
 static float s_timer = 0.0f;
 static float s_speed = 8.0f;
 static float s_angle = 0.0f;
+static float s_paletteTimer = 0.0f;
+static int s_lerpPal = 0;
+static BYTE s_initPal[256*3];
+static BYTE s_whitePal[256*3];
 
 // Adds a segment to the end of the list with the specified z position.
 static void addSegment(float z, float angle)
@@ -156,14 +164,53 @@ static int init()
     return 1;
 }
 
-static void start()
+#define setPal(p, i, r, g, b) p[((i)*3)+0] = (r); p[((i)*3)+1] = (g); p[((i)*3)+2] = (b)
+
+static void initPal()
 {
     int i;
     for (i = 0; i < 128; i++)
     {
-        video_setPal((BYTE)i, (BYTE)(i >> 2), (BYTE)(i >> 2), (BYTE)(i >> 1));
-        video_setPal((BYTE)(i + 128), (BYTE)(i >> 1), (BYTE)(i >> 2), (BYTE)(i >> 8));
+        setPal(s_initPal, i, (BYTE)(i >> 2), (BYTE)(i >> 2), (BYTE)(i >> 1));
+        setPal(s_initPal, i + 128, (BYTE)(i >> 1), (BYTE)(i >> 2), (BYTE)(i >> 8));
+        setPal(s_whitePal, i, 63, 63, 63);
+        setPal(s_whitePal, i + 128, 63, 63, 63);
     }
+
+    video_setPalette(s_initPal);
+}
+
+static void updatePalette(float dt)
+{
+    static const float TIME = 0.25f;
+
+    if (s_timer < 5.0f)
+        return;
+
+    s_paletteTimer += dt;
+    if (s_paletteTimer > TIME)
+    {
+        s_paletteTimer = 0;
+        s_lerpPal = 1;
+        video_setPalette(s_whitePal);
+    }
+    else if (s_lerpPal)
+    {
+        int i;
+        for (i = 0; i < 256; i++)
+        {
+            Vector3 a, b, c;
+            vec3_set(&a, 63, 63, 63);
+            vec3_set(&b, s_initPal[i*3], s_initPal[(i*3)+1], s_initPal[(i*3)+2]);
+            vec3_lerp(c, a, b, s_paletteTimer / TIME);
+            video_setPal((BYTE)i, (BYTE)c.x, (BYTE)c.y, (BYTE)c.z);
+        }
+    }
+}
+
+static void start()
+{
+    initPal();
 }
 
 static void update(float dt)
@@ -171,11 +218,12 @@ static void update(float dt)
     s_projXscale = SCREEN_WIDTH / (2.0f * (float)tan(s_fovHori * 0.5f * PI / 180.0f));
     s_projYscale = s_projXscale * ASPECT;
 
+    s_timer += dt;
+
     projectTunnel();
     renderTunnel();
-
-    s_timer += dt;
     updateTunnel(dt);
+    updatePalette(dt);
 }
 
 static EffectDesc s_desc = { init, update, start, 0, 1 };
