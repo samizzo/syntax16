@@ -11,11 +11,13 @@
 #include "util.h"
 #include "particle.h"
 
-static const int MAX_PARTICLES = 8192;
+static const int MAX_PARTICLES = 2048;
 static ParticleSystem* s_system;
 static const float RADIUS = 150.0f;
 static Vector2 s_centre = { SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f };
 static float s_maxAcceleration = 40.0f;
+
+static float s_bigParticleChance = 0.2f; // Probability of spawning a big particle (smaller means more likely)
 
 #define DO_BLUR 0
 
@@ -23,8 +25,17 @@ static float s_maxAcceleration = 40.0f;
 static BYTE* s_blurBuffer;
 #endif
 
-Image* images[3];
+Image* images[4];
 BYTE* palette;
+
+BYTE dot[8*8] = {160, 160, 160, 162, 162, 160, 160, 160,
+                 160, 165, 173, 178, 176, 172, 163, 160,
+                 162, 175, 184, 190, 189, 184, 173, 160,
+                 169, 183, 194, 200, 199, 191, 181, 166,
+                 171, 185, 196, 204, 202, 194, 182, 168,
+                 167, 181, 191, 198, 197, 190, 179, 166,
+                 160, 173, 182, 187, 187, 181, 172, 160,
+                 160, 160, 168, 172, 171, 167, 160, 160};
 
 static BYTE s_dot[2*2] =
 {
@@ -74,7 +85,16 @@ static void addParticles(int num)
             vec2_mul(a, randomf() * s_maxAcceleration);
 
             d->life = 1.5f;
-            d->image = images[random() & 2];
+
+            t = randomf();
+            if (t > s_bigParticleChance)
+            {
+                d->image = images[3];
+            }
+            else
+            {
+                d->image = images[random() & 2];
+            }
 
             num--;
             if (num == 0)
@@ -94,6 +114,10 @@ static int init()
     memcpy(images[0]->pixels, s_dot, 2*2);
     memcpy(images[1]->pixels, s_dot2, 2*2);
     memcpy(images[2]->pixels, s_dot3, 2*2);
+    images[3] = image_create(8, 8);
+    for (i = 0; i < 8*8; i++) dot[i] -= 160;
+
+    memcpy(images[3]->pixels, dot, 8*8);
 
 #if DO_BLUR
     s_blurBuffer = (BYTE*)malloc(SCREEN_WIDTH*SCREEN_HEIGHT);
@@ -101,7 +125,7 @@ static int init()
 #endif
 
     s_system = ps_create(MAX_PARTICLES);
-    addParticles(100);
+    //addParticles(10);
 
     // image = image_loadFromTGA("data/dot.tga");
     // if (!image)
@@ -182,7 +206,7 @@ static void update(float dt)
     if (s_timer > 0.1f)
     {
         s_timer = 0.0f;
-        addParticles(200);
+        addParticles(60);
     }
 
 #if DO_BLUR
@@ -201,17 +225,17 @@ static void update(float dt)
 
     ps_updateAndDraw(s_system, video_getOffscreenBuffer(), dt);
 
-    // {
-    //     int x;
-    //     BYTE* b = video_getOffscreenBuffer();
-    //     for (x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++)
-    //     {
-    //         int c = *b;
-    //         c = max(0, c - 30);
-    //         *b = c;
-    //         b++;
-    //     }
-    // }
+    {
+        int x;
+        BYTE* b = video_getOffscreenBuffer();
+        for (x = 0; x < SCREEN_WIDTH * SCREEN_HEIGHT; x++)
+        {
+            int c = *b;
+            c = max(0, c - 30);
+            *b = c;
+            b++;
+        }
+    }
 
 #if DO_BLUR
     blur();
@@ -230,7 +254,7 @@ static void update(float dt)
 #endif
 }
 
-static EffectDesc s_desc = { init, update, start, 0, 1 };
+static EffectDesc s_desc = { init, update, start, 0, 0 };
 
 EffectDesc* dots_getEffectDesc()
 {
