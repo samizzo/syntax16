@@ -17,13 +17,13 @@ inline float clampf(float value, float min, float max)
 
 extern DWORD g_seed;
 
-// Returns a random value between 0 and 1.
 inline DWORD random()
 {
     g_seed = (214013 * g_seed) + 2531011;
     return (g_seed >> 16) & 0x7fff;
 }
 
+// Returns a random value between 0 and 1.
 inline float randomf()
 {
     return random() / (float)0x7fff;
