@@ -19,15 +19,17 @@ static int s_numSegments = 0;
 static float s_projXscale;
 static float s_projYscale;
 static Vector3 s_camera;
-#define START_Z 0.8f
+#define START_Z 0.5f
 #define Z_INC 0.5f
 static const float MAX_Z = (MAX_SEGMENTS - 1) * Z_INC;
 static BYTE s_invert = 0;
-static float s_timer = 0;
-static float s_speed = 4.0f;
+static float s_moveTimer = 0;
+static float s_timer = 0.0f;
+static float s_speed = 8.0f;
+static float s_angle = 0.0f;
 
 // Adds a segment to the end of the list with the specified z position.
-static void addSegment(float z)
+static void addSegment(float z, float angle)
 {
     int ofs = s_numSegments * 4;
 
@@ -39,6 +41,11 @@ static void addSegment(float z)
     vec3_set(&m_world[ofs+2], 0.5f, 0.5f, z); // bottom right
     vec3_set(&m_world[ofs+3], -0.5f, 0.5f, z); // bottom left
 
+    vec3_rotate_z(&m_world[ofs+0], angle);
+    vec3_rotate_z(&m_world[ofs+1], angle);
+    vec3_rotate_z(&m_world[ofs+2], angle);
+    vec3_rotate_z(&m_world[ofs+3], angle);
+
     s_numSegments++;
 }
 
@@ -46,16 +53,17 @@ void updateTunnel(float dt)
 {
     int i;
     float inc = dt * s_speed;
-    s_timer += inc;
+    s_moveTimer += inc;
+
     for (i = 0; i < s_numSegments * 4; i++)
         m_world[i].z -= inc;
 
-    if (s_timer >= Z_INC)
+    if (s_moveTimer >= Z_INC)
     {
         float z = START_Z;
 
         s_numSegments--;
-        util_blit(&m_world[4], &m_world[0], (s_numSegments * 4 * sizeof(float)) >> 2);
+        util_blit(&m_world[4], &m_world[0], (s_numSegments * 4 * sizeof(Vector3)) >> 2);
 
         for (i = 0; i < s_numSegments * 4; i += 4)
         {
@@ -66,10 +74,12 @@ void updateTunnel(float dt)
             z += Z_INC;
         }
 
-        addSegment(z);
+        addSegment(z, s_angle);
 
-        s_timer = 0;
+        s_moveTimer = 0;
         s_invert ^= 1;
+
+        s_angle = sin(s_timer * 4.0f) * 45.0f * PI / 180.0f;
     }
 }
 
@@ -100,7 +110,8 @@ static void renderTunnel()
     BYTE col = s_invert ? 128 : 0;
     BYTE* buffer = video_getOffscreenBuffer();
 
-    for (i = 1; i < s_numSegments; i++)
+    // Render from back to front.
+    for (i = s_numSegments - 1; i > 0; i--)
     {
         int j;
         int prevSegment = (i - 1) * 4;
@@ -136,7 +147,7 @@ static int init()
     int i;
     for (i = 0; i < MAX_SEGMENTS; i++)
     {
-        addSegment(z);
+        addSegment(z, 0.0f);
         z += Z_INC;
     }
 
@@ -160,6 +171,7 @@ static void update(float dt)
     s_projXscale = SCREEN_WIDTH / (2.0f * (float)tan(s_fovHori * 0.5f * PI / 180.0f));
     s_projYscale = s_projXscale * ASPECT;
 
+    s_timer += dt;
     projectTunnel();
     renderTunnel();
     updateTunnel(dt);

@@ -68,4 +68,12 @@ inline void vec3_normalise(Vector3* v)
     vec3_mul(v, ool);
 }
 
+inline void vec3_rotate_z(Vector3* v, float angle)
+{
+    Vector3 temp;
+    vec3_copy(&temp, v);
+    v->x = (temp.x * cos(angle)) - (temp.y * sin(angle));
+    v->y = (temp.x * sin(angle)) + (temp.y * cos(angle));
+}
+
 #endif
