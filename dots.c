@@ -127,15 +127,6 @@ static int init()
     s_system = ps_create(MAX_PARTICLES);
     //addParticles(10);
 
-    // image = image_loadFromTGA("data/dot.tga");
-    // if (!image)
-    // {
-    //     log_debug("Failed to load dot.tga");
-    //     return 0;
-    // }
-
-    //image_remapPaletteLinear(palette);
-
     return 1;
 }
 
