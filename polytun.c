@@ -12,11 +12,8 @@ static const float Y_CENTRE = SCREEN_HEIGHT * 0.5f;
 static const float ASPECT = (SCREEN_HEIGHT / (float)SCREEN_WIDTH) * (320.0f / 240.0f);
 static float s_fovHori = 60.0f;
 
-#if defined(DEBUG)
-#define MAX_SEGMENTS 10
-#else
 #define MAX_SEGMENTS 20
-#endif
+
 static Vector3 m_world[MAX_SEGMENTS * 4];
 static Vector3 m_screen[MAX_SEGMENTS * 4];
 static int s_numSegments = 0;
