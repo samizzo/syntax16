@@ -11,11 +11,13 @@
 #include "polytun.h"
 #include "dots.h"
 #include "plasma.h"
+#include "funkyln.h"
 
 Array* g_effects;
 
 void registerEffects()
 {
+    array_add(g_effects, funkyln_getEffectDesc());
     array_add(g_effects, plasma_getEffectDesc());
     array_add(g_effects, dots_getEffectDesc());
     array_add(g_effects, polytun_getEffectDesc());
