@@ -6,7 +6,7 @@ LINK_FLAGS_RELEASE =
 LINK_FLAGS = $(LINK_FLAGS_$(BUILD))
 
 CPP_FLAGS_DEBUG = -wx -fpi87 -j -d2 -5r -dDEBUG -db -mf
-CPP_FLAGS_RELEASE = -wx -we -oxl+ -j -s -fpi87 -5r -DRELEASE -mf
+CPP_FLAGS_RELEASE = -wx -we -oxtl+ -zri -j -s -fpi87 -5r -DRELEASE -mf
 CPP_FLAGS = $(CPP_FLAGS_$(BUILD))
 
 OUTPUT_DIR = $(BUILD)
