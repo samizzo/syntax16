@@ -13,7 +13,9 @@
 #include "plasma.h"
 #include "funkyln.h"
 
-Array* g_effects;
+static Array* g_effects;
+static float s_timer = 0.0f;
+static int s_currentEffect = 0;
 
 void registerEffects()
 {
@@ -98,7 +100,22 @@ int main()
     {
         long double currentTime = TMRgettime();
         long double delta = currentTime - lastTime;
+        float dt = (float)SECONDS(delta);
         lastTime = currentTime;
+
+        s_timer += dt;
+        if (s_timer > 2.0f)
+        {
+            s_timer = 0.0f;
+            s_currentEffect++;
+            if (s_currentEffect == g_effects->size)
+            {
+                s_currentEffect = 0;
+            }
+
+            currentEffect->started = 0;
+            currentEffect = (EffectDesc*)array_get(g_effects, s_currentEffect);
+        }
 
         if (!currentEffect->started)
         {
@@ -106,7 +123,7 @@ int main()
             currentEffect->start();
         }
 
-        currentEffect->update((float)SECONDS(delta));
+        currentEffect->update(dt);
 
         video_waitForRetrace();
         util_blit(buffer, (void*)0xa0000, bufferSize);
