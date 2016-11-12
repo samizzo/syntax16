@@ -12,7 +12,7 @@ static const float Y_CENTRE = SCREEN_HEIGHT * 0.5f;
 static const float ASPECT = (SCREEN_HEIGHT / (float)SCREEN_WIDTH) * (320.0f / 240.0f);
 static float s_fovHori = 60.0f;
 
-#define MAX_SEGMENTS 10
+#define MAX_SEGMENTS 20
 static Vector3 m_world[MAX_SEGMENTS * 4];
 static Vector3 m_screen[MAX_SEGMENTS * 4];
 static int s_numSegments = 0;
@@ -147,7 +147,7 @@ static int init()
     int i;
     for (i = 0; i < MAX_SEGMENTS; i++)
     {
-        addSegment(z, 0.0f);
+        addSegment(z, s_angle);
         z += Z_INC;
     }
 
@@ -171,9 +171,10 @@ static void update(float dt)
     s_projXscale = SCREEN_WIDTH / (2.0f * (float)tan(s_fovHori * 0.5f * PI / 180.0f));
     s_projYscale = s_projXscale * ASPECT;
 
-    s_timer += dt;
     projectTunnel();
     renderTunnel();
+
+    s_timer += dt;
     updateTunnel(dt);
 }
 
