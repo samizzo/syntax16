@@ -29,12 +29,14 @@ static const float MAX_Z = (MAX_SEGMENTS - 1) * Z_INC;
 static BYTE s_invert = 0;
 static float s_moveTimer = 0;
 static float s_timer = 0.0f;
-static float s_speed = 8.0f;
 static float s_angle = 0.0f;
 static float s_paletteTimer = 0.0f;
 static int s_lerpPal = 0;
 static BYTE s_initPal[256*3];
 static BYTE s_whitePal[256*3];
+
+static float s_angleSpeed = 4.0f;
+static float s_speed = 8.0f;
 
 // Adds a segment to the end of the list with the specified z position.
 static void addSegment(float z, float angle)
@@ -87,7 +89,7 @@ void updateTunnel(float dt)
         s_moveTimer = 0;
         s_invert ^= 1;
 
-        s_angle = sin(s_timer * 4.0f) * 45.0f * PI / 180.0f;
+        s_angle = sin(s_timer * s_angleSpeed) * 45.0f * PI / 180.0f;
     }
 }
 
