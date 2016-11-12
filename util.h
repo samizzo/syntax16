@@ -1,9 +1,7 @@
-#ifndef _types_h
-#define _types_h
+#ifndef _util_h
+#define _util_h
 
-typedef unsigned char BYTE;
-typedef unsigned short int WORD;
-typedef unsigned long int DWORD;
+#include "types.h"
 
 #define PI 3.14159265358979f
 
@@ -36,5 +34,8 @@ void util_blit(void* src, void* dst, DWORD size);
 
 // Clear dest to col (8 pixels at once). Size is in dwords.
 void util_clear(void *dest, DWORD col, DWORD size);
+
+void timer_init();
+long double timer_get_time();
 
 #endif

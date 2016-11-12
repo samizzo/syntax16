@@ -5,8 +5,8 @@ LINK_FLAGS_DEBUG = debug all
 LINK_FLAGS_RELEASE =
 LINK_FLAGS = $(LINK_FLAGS_$(BUILD))
 
-CPP_FLAGS_DEBUG = -wx -fpi87 -j -d2 -5r -dDEBUG -db -mf
-CPP_FLAGS_RELEASE = -wx -we -oxtl+ -zri -j -s -fpi87 -5r -DRELEASE -mf
+CPP_FLAGS_DEBUG = -wx -fpi87 -j -d2 -5r -zro -dDEBUG -db -mf
+CPP_FLAGS_RELEASE = -wx -oxtl+ -zro -j -s -fpi87 -5r -DRELEASE -mf
 CPP_FLAGS = $(CPP_FLAGS_$(BUILD))
 
 OUTPUT_DIR = $(BUILD)
@@ -21,7 +21,8 @@ OBJ_FILES = $(OUTPUT_DIR)\main.obj &
 	$(OUTPUT_DIR)\dots.obj &
 	$(OUTPUT_DIR)\util.obj &
 	$(OUTPUT_DIR)\particle.obj &
-	$(OUTPUT_DIR)\poly.obj
+	$(OUTPUT_DIR)\poly.obj &
+	$(OUTPUT_DIR)\control.obj
 EXE_FILE = $(OUTPUT_DIR)\test.exe
 
 default: make_dirs $(EXE_FILE)
@@ -46,3 +47,6 @@ make_dirs: .SYMBOLIC
 
 .c.obj: .AUTODEPEND
 	$(CPP) $(CPP_FLAGS) $[* -fo=$(OUTPUT_DIR)\$[&
+
+.asm.obj: .AUTODEPEND
+	wasm $[* -fo=$(OUTPUT_DIR)\$[&
